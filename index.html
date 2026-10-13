@@ -81,10 +81,10 @@
   .project-header {
     display: flex;
     align-items: baseline;
-    justify-content: space-between;
+    justify-content: center;
     padding: 20px 0 16px;
-    gap: 24px;
     user-select: none;
+    position: relative;
   }
 
   .project-title {
@@ -94,8 +94,7 @@
     letter-spacing: 0.015em;
     color: var(--fg);
     transition: opacity 0.12s;
-    flex: 1;
-    min-width: 0;
+    text-align: center;
   }
   .project-item:hover .project-title { opacity: 0.7; }
   .project-item.open .project-title { opacity: 1; }
@@ -105,9 +104,53 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--muted);
-    flex-shrink: 0;
     text-align: right;
     line-height: 1.8;
+    position: absolute;
+    right: 0;
+    bottom: 16px;
+  }
+
+  /* ── TITLE OVER IMAGE ── */
+  .project-item.open .project-header {
+    position: relative;
+    z-index: 2;
+    margin-bottom: -4.5rem;
+    background: transparent;
+  }
+  .project-item.open .project-body {
+    position: relative;
+    z-index: 1;
+  }
+  .project-item.open .project-title {
+    text-shadow: 0 2px 28px rgba(0,0,0,0.95), 0 0 60px rgba(0,0,0,0.7);
+  }
+
+  /* ── ABOUT ── */
+  #about-section {
+    padding: 72px 0 80px;
+  }
+  .about-content {
+    max-width: 560px;
+  }
+  .about-content h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    line-height: 0.93;
+    letter-spacing: 0.015em;
+    color: var(--fg);
+    margin: 0 0 48px;
+  }
+  .about-content p {
+    font-size: 0.9rem;
+    line-height: 1.85;
+    color: var(--fg);
+    margin: 0 0 16px;
+  }
+  .about-content a {
+    color: var(--fg);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   /* ── EXPAND ── */
@@ -224,7 +267,6 @@
     <li><a data-filter="all" class="active">All</a></li>
     <li><a data-filter="architecture">Architecture</a></li>
     <li><a data-filter="design">Design</a></li>
-    <li><a data-filter="photography">Photography</a></li>
     <li><a data-filter="about">About</a></li>
   </ul>
 </nav>
@@ -443,47 +485,6 @@
   </div>
 </div>
 
-<div class="project-item" data-cat="architecture"
-  data-cover="img/b5855-240522_final_bhh_skwi_side_31.webp">
-  <div class="project-header">
-    <span class="project-title">Along Stone Fences</span>
-    <div class="project-meta">Hoddevik, Norway<br>AHO Studio</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Project</h2>
-      <p>Located at the end of the road in Hoddevik, Norway, this architectural project is designed as a destination in the landscape. The project incorporates the intimate outside spaces of Madeiran architecture and emphasizes sustainable material use.</p>
-      <p>At its core, the project fosters a sense of community, offering a place where locals and visitors can converge. In collaboration with Brage Hognestad Hasler.</p>
-      <div class="tags"><span class="tag">Hoddevik</span><span class="tag">Landscape</span><span class="tag">Community</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/52956-image15-edited.webp" alt="" class="span2">
-      <img src="img/2c2d1-utennavn-2-edited.webp" alt="">
-      <img src="img/60dc2-gk62023_aho_severin_kokaas_ingebretsen_06-edited.webp" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="architecture"
-  data-cover="img/241fc-image91.webp">
-  <div class="project-header">
-    <span class="project-title">Sognsveien 8</span>
-    <div class="project-meta">Oslo<br>GK6</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Project</h2>
-      <p>GK6 — Sognsveien 8, Oslo.</p>
-      <div class="tags"><span class="tag">Oslo</span><span class="tag">Housing</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/78966-torsdag1135-vegardogseverin_side_03-edited.webp" alt="" class="span2">
-      <img src="img/f34b1-2.2-edited.webp" alt="">
-      <img src="img/cba88-torsdag1135-vegardogseverin_side_09.webp" alt="">
-      <img src="img/48cdb-dsc03265.webp" alt="">
-    </div>
-  </div>
-</div>
 
 <!-- ══════════════ DESIGN ══════════════ -->
 <p class="section-label" data-section="design">Design</p>
@@ -590,152 +591,16 @@
   </div>
 </div>
 
-<!-- ══════════════ PHOTOGRAPHY ══════════════ -->
-<p class="section-label" data-section="photography">Photography</p>
 
-<div class="project-item" data-cat="photography"
-  data-cover="img/aw_02358.jpg">
-  <div class="project-header">
-    <span class="project-title">Ivorie Studio</span>
-    <div class="project-meta">2026<br>Sony A7III · 85mm</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Photography</h2>
-      <p>Sony A7III + Sony G-Master 85mm.</p>
-      <div class="tags"><span class="tag">Studio</span><span class="tag">Portrait</span><span class="tag">2026</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/aw_02358.jpg" alt="" class="span2">
-      <img src="img/aw_00931.jpg" alt="">
-      <img src="img/aw_00942.jpg" alt="">
-      <img src="img/aw_02317.jpg" alt="">
-    </div>
-  </div>
-</div>
 
-<div class="project-item" data-cat="photography"
-  data-cover="img/aw_08471.jpg">
-  <div class="project-header">
-    <span class="project-title">Oslo September</span>
-    <div class="project-meta">2025<br>Sony A7III · 85mm</div>
+<section id="about-section" style="display:none">
+  <div class="about-content">
+    <h1>Severin Kokaas Winther</h1>
+    <p>Architect and designer based in Oslo. Graduate of the Oslo School of Architecture and Design (AHO), 2025.</p>
+    <p>Working at the intersection of architecture, landscape, and craft — from spatial projects and competitions to furniture and objects.</p>
+    <p><a href="mailto:severin@atelierwinther.com">severin@atelierwinther.com</a></p>
   </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Photography</h2>
-      <p>Oslo, September 2025. Sony A7III + Sony G-Master 85mm.</p>
-      <div class="tags"><span class="tag">Oslo</span><span class="tag">Street</span><span class="tag">2025</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/aw_08471.jpg" alt="">
-      <img src="img/aw_08510.jpg" alt="">
-      <img src="img/aw_07095.jpg" alt="" class="span2">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="photography"
-  data-cover="img/9316c-dsc00379.webp">
-  <div class="project-header">
-    <span class="project-title">Gamle Hvam</span>
-    <div class="project-meta">2025<br>Sony A7III · 28–70mm</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Photography</h2>
-      <p>Gamle Hvam, 2025. Sony A7III + Sony 28-70mm.</p>
-      <div class="tags"><span class="tag">Landscape</span><span class="tag">Norway</span><span class="tag">2025</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/9316c-dsc00379.webp" alt="">
-      <img src="img/cf3b3-dsc00334.webp" alt="">
-      <img src="img/00cb6-dsc00311.webp" alt="">
-      <img src="img/439bd-dsc00363.webp" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="photography"
-  data-cover="img/p1010257-edited.jpg">
-  <div class="project-header">
-    <span class="project-title">Sunnmøre</span>
-    <div class="project-meta">2025<br>Sony A7III · 28–70mm</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Photography</h2>
-      <p>Sunnmøre, 2025. Sony A7III + Sony 28-70mm.</p>
-      <div class="tags"><span class="tag">Landscape</span><span class="tag">Norway</span><span class="tag">2025</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/p1010257-edited.jpg" alt="" class="span2">
-      <img src="img/p1010261.jpg" alt="">
-      <img src="img/p1010173.jpg" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="photography"
-  data-cover="img/p7260067-edited.jpg">
-  <div class="project-header">
-    <span class="project-title">Madeira</span>
-    <div class="project-meta">2024<br>Panasonic Lumix</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Photography</h2>
-      <p>Madeira, 2024. Panasonic Lumix DMC-TZ80.</p>
-      <div class="tags"><span class="tag">Travel</span><span class="tag">Madeira</span><span class="tag">2024</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/p7260067-edited.jpg" alt="">
-      <img src="img/p7260061-edited-1.jpg" alt="">
-      <img src="img/p7260092-edited.jpg" alt="">
-      <img src="img/p1010224.jpg" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="photography"
-  data-cover="img/img_8092.jpeg">
-  <div class="project-header">
-    <span class="project-title">Valldalen</span>
-    <div class="project-meta">2024<br>Olympus</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Photography</h2>
-      <p>Valldalen, 2024. Olympus.</p>
-      <div class="tags"><span class="tag">Landscape</span><span class="tag">Norway</span><span class="tag">2024</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/img_8092.jpeg" alt="" class="span2">
-      <img src="img/p1010236.jpg" alt="">
-      <img src="img/p1010142.jpg" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="photography"
-  data-cover="img/p1060648.jpg">
-  <div class="project-header">
-    <span class="project-title">Lofoten</span>
-    <div class="project-meta">2024<br>Canon A1</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Photography</h2>
-      <p>Lofoten, 2024. Canon A1 — analogue.</p>
-      <div class="tags"><span class="tag">Analogue</span><span class="tag">Lofoten</span><span class="tag">Canon A1</span><span class="tag">2024</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/p1060648.jpg" alt="">
-      <img src="img/p1060668.jpg" alt="">
-      <img src="img/p1060700.jpg" alt="">
-      <img src="img/img_4289-edited.jpg" alt="">
-    </div>
-  </div>
-</div>
+</section>
 
 </main>
 
@@ -798,10 +663,19 @@
       document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
       link.classList.add('active');
 
+      const aboutSection = document.getElementById('about-section');
+
       if (f === 'about') {
-        window.location.href = 'https://atelierwinther.com/about-2/';
+        document.querySelectorAll('.project-item').forEach(item => {
+          item.classList.remove('open');
+          item.classList.add('hidden');
+        });
+        labels.forEach(lbl => { lbl.style.display = 'none'; });
+        aboutSection.style.display = '';
         return;
       }
+
+      aboutSection.style.display = 'none';
 
       document.querySelectorAll('.project-item').forEach(item => {
         item.classList.remove('open');
