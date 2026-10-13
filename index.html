@@ -1,0 +1,817 @@
+<title>Atelier Winther</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500&display=swap">
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --fg: #ede9e3;
+    --muted: #4a4a4a;
+    --line: #1e1e1e;
+    --accent: #ede9e3;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 300;
+    margin: 0;
+    padding: 0 48px;
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 36px 0 36px;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.18em;
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+    margin: 0; padding: 0;
+  }
+  .nav-links a {
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    cursor: pointer;
+  }
+  .nav-links a:hover,
+  .nav-links a.active { color: var(--fg); }
+
+  /* ── SECTION HEADER ── */
+  .section-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 52px 0 0;
+    margin-bottom: 0;
+    border-top: none;
+  }
+
+  /* ── PROJECT LIST ── */
+  .project-item {
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+  }
+  .project-item.hidden { display: none; }
+
+  .project-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 20px 0 16px;
+    gap: 24px;
+    user-select: none;
+  }
+
+  .project-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 7.5vw, 8rem);
+    line-height: 0.93;
+    letter-spacing: 0.015em;
+    color: var(--fg);
+    transition: opacity 0.12s;
+    flex: 1;
+    min-width: 0;
+  }
+  .project-item:hover .project-title { opacity: 0.7; }
+  .project-item.open .project-title { opacity: 1; }
+
+  .project-meta {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex-shrink: 0;
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  /* ── EXPAND ── */
+  .project-body {
+    display: none;
+    padding: 0 0 60px;
+  }
+  .project-item.open .project-body {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+
+  .project-text h2 {
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 18px;
+    font-weight: 400;
+  }
+  .project-text p {
+    font-size: 0.88rem;
+    line-height: 1.8;
+    color: var(--fg);
+    margin: 0 0 14px;
+  }
+  .project-text .tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 28px;
+  }
+  .project-text .tag {
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--line);
+    padding: 3px 9px;
+    color: var(--muted);
+  }
+
+  .project-images {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .project-images img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.94);
+    transition: filter 0.3s;
+  }
+  .project-images img:hover { filter: brightness(1.08); }
+  .project-images img.span2 {
+    grid-column: span 2;
+    aspect-ratio: 16/7;
+  }
+  .project-images img.port {
+    aspect-ratio: 3/4;
+  }
+
+  /* ── HOVER PREVIEW ── */
+  #preview {
+    position: fixed;
+    pointer-events: none;
+    z-index: 500;
+    opacity: 0;
+    transition: opacity 0.22s ease;
+    width: clamp(280px, 28vw, 440px);
+  }
+  #preview img {
+    width: 100%;
+    display: block;
+    max-width: 100%;
+  }
+  #preview.on { opacity: 1; }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 72px 0 40px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 800px) {
+    body { padding: 0 20px; }
+    nav { padding: 24px 0; }
+    .project-item.open .project-body {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+    #preview { display: none; }
+    .project-title { font-size: clamp(2.2rem, 12vw, 5rem); }
+  }
+  @media (max-width: 500px) {
+    .nav-links { gap: 16px; }
+    .project-images { grid-template-columns: 1fr; }
+    .project-images img.span2 { grid-column: span 1; aspect-ratio: 4/3; }
+  }
+</style>
+
+<div id="preview"><img src="" alt=""></div>
+
+<nav>
+  <a class="nav-logo" href="#">AW</a>
+  <ul class="nav-links">
+    <li><a data-filter="all" class="active">All</a></li>
+    <li><a data-filter="architecture">Architecture</a></li>
+    <li><a data-filter="design">Design</a></li>
+    <li><a data-filter="photography">Photography</a></li>
+    <li><a data-filter="about">About</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- ══════════════ ARCHITECTURE ══════════════ -->
+<p class="section-label" data-section="architecture">Architecture</p>
+
+<div class="project-item" data-cat="architecture"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/aw_08958.jpg?w=684">
+  <div class="project-header">
+    <span class="project-title">Stall Søndre</span>
+    <div class="project-meta">Oslo<br>2026</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Project</h2>
+      <p>Conversion of an existing stable building at Søndre farm.</p>
+      <div class="tags"><span class="tag">Conversion</span><span class="tag">Oslo</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_08958.jpg?w=684" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_08907.jpg?w=684" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_08861.jpg?w=684" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/2.0_side_16-edited.jpg" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="architecture"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/dsc_3437-ferdig-edited.jpg">
+  <div class="project-header">
+    <span class="project-title">Tabuno</span>
+    <div class="project-meta">Architecture<br>2026</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Project</h2>
+      <p></p>
+      <div class="tags"><span class="tag">Architecture</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/dsc_3437-ferdig-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/dsc_3447-ferdig-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/dsc_3492-ferdig-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/dsc_3519-ferdig-edited.jpg" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="architecture"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/7e801-binder1.pdf_side_06.webp?w=1024">
+  <div class="project-header">
+    <span class="project-title">MAXXI Museum</span>
+    <div class="project-meta">Rome<br>Competition</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Project</h2>
+      <p>Model for Resell+Nicca, awarded 3rd place in competition for extension to the Zaha Hadid MAXXI Museum in Rome. Photos by Resell+Nicca.</p>
+      <div class="tags"><span class="tag">Competition</span><span class="tag">Rome</span><span class="tag">Model</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/7e801-binder1.pdf_side_06.webp?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/5d9ea-binder1.pdf_side_19.webp?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/480d9-binder1.pdf_side_08.webp?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/bfb6a-binder1.pdf_side_13.webp?w=1024" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="architecture"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/a1_105.jpg?w=1024">
+  <div class="project-header">
+    <span class="project-title">Critical Mass: Under Pressure</span>
+    <div class="project-meta">AHO<br>Studio</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Project</h2>
+      <p>Surplus masses are excavated, unused masses from a construction site. These masses consist of soil and stone material that are reused and given new meaning.</p>
+      <div class="tags"><span class="tag">Landscape</span><span class="tag">AHO</span><span class="tag">Circular</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/a1_105.jpg?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/a1_501.jpg?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/5f6ef-a0_320.jpg?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/05/aw_03523.jpg?w=1024" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="architecture"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/lysthus-58-of-85-edited.jpg">
+  <div class="project-header">
+    <span class="project-title">Cultura+ AHO Landscape Lab</span>
+    <div class="project-meta">AHO Oslo<br>2025</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Project</h2>
+      <p>AHO Urban LandLAB; a tool storage and work station supporting educational activities in AHO's Landscape Lab. Built as part of the Circular Prototyping studio.</p>
+      <div class="tags"><span class="tag">Pavilion</span><span class="tag">AHO</span><span class="tag">Circular</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/lysthus-58-of-85-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/lysthus-65-of-85-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/lysthusd-18-of-23-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/dsc02500-edited.jpg" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="architecture"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/a2_103-edited.jpg">
+  <div class="project-header">
+    <span class="project-title">Pavilion Assembly</span>
+    <div class="project-meta">AHO<br>2025</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Project</h2>
+      <p>Assembly and construction of the Cultura+ pavilion system, developed through the Circular Prototyping studio at the Oslo School of Architecture and Design.</p>
+      <div class="tags"><span class="tag">Pavilion</span><span class="tag">Construction</span><span class="tag">AHO</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/a2_103-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_08592-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_08655-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_08724-edited.jpg" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="architecture"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/250226_lysthus_assembly-manual_side_01.jpg?w=724">
+  <div class="project-header">
+    <span class="project-title">Pavilion Assembly Manual</span>
+    <div class="project-meta">AHO<br>2025</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Document</h2>
+      <p>Assembly manual for the Cultura+ circular pavilion system.</p>
+      <div class="tags"><span class="tag">Manual</span><span class="tag">Circular</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/250226_lysthus_assembly-manual_side_01.jpg?w=724" alt="" class="span2">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/250226_lysthus_assembly-manual_side_24.jpg?w=724" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/250226_lysthus_assembly-manual_side_53.jpg?w=724" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="architecture"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/3b_cultura_assembly_print_side_01.jpg?w=738">
+  <div class="project-header">
+    <span class="project-title">Cultura+ Ultima Music Festival</span>
+    <div class="project-meta">Oslo<br>2024</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Project</h2>
+      <p>Ultima Sonic Shack; a music performance pavilion created for Ultima – Oslo Contemporary Music Festival, in collaboration with students from NMH.</p>
+      <div class="tags"><span class="tag">Pavilion</span><span class="tag">Ultima</span><span class="tag">Music</span><span class="tag">Oslo</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/3b_cultura_assembly_print_side_01.jpg?w=738" alt="" class="span2">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/3b_cultura_assembly_print_side_37.jpg?w=738" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/bla-illu.png?w=1024" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="architecture"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/04/f1b92-winther2cseverinkokaas_presentation_06.01.2026_side_74.jpg?w=1024">
+  <div class="project-header">
+    <span class="project-title">Cultura+ Assembly Manual</span>
+    <div class="project-meta">AHO<br>2024</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Document</h2>
+      <p>Created by the Circular Prototyping studio at the Oslo School of Architecture and Design (AHO), Cultura+ is a circular construction system designed for reuse.</p>
+      <div class="tags"><span class="tag">Manual</span><span class="tag">Circular</span><span class="tag">AHO</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/f1b92-winther2cseverinkokaas_presentation_06.01.2026_side_74.jpg?w=1024" alt="" class="span2">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/9f5c4-winther2cseverinkokaas_presentation_06.01.2026_side_52.jpg?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/d6ef6-winther2cseverinkokaas_presentation_06.01.2026_side_56.jpg?w=1024" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="architecture"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/05/aw-6a0ef1b33662c.png?w=768">
+  <div class="project-header">
+    <span class="project-title">Handle with Care</span>
+    <div class="project-meta">Diploma Fall 2025<br>AHO Oslo</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Diploma Project</h2>
+      <p>For decades, Oslo has relied on temporary, modular units to meet kindergarten capacity demands. These modules are now vacant — obsolete structures awaiting demolition.</p>
+      <p>This diploma argues that these vacant buildings could hold potential of becoming meaningful alternatives: community kindergartens that are rooted in place rather than interchangeable. The project transforms a 1968 wardrobe pavilion at Ekeberg into a kindergarten for Atriet Barnehage.</p>
+      <div class="tags"><span class="tag">Adaptive Reuse</span><span class="tag">Kindergarten</span><span class="tag">Ekeberg</span><span class="tag">Diploma</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/05/aw-6a0ef1b33662c.png?w=768" alt="" class="span2">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/05/aw-6a0ef256048d1.png?w=768" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/9a5df-240522_final_bhh_skwi_side_07.webp?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/b5855-240522_final_bhh_skwi_side_31.webp?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/240522_final_bhh_skwi_side_32.jpg?w=1024" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="architecture"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/52956-image15-edited.webp">
+  <div class="project-header">
+    <span class="project-title">Along Stone Fences</span>
+    <div class="project-meta">Hoddevik, Norway<br>AHO Studio</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Project</h2>
+      <p>Located at the end of the road in Hoddevik, Norway, this architectural project is designed as a destination in the landscape. The project incorporates the intimate outside spaces of Madeiran architecture and emphasizes sustainable material use.</p>
+      <p>At its core, the project fosters a sense of community, offering a place where locals and visitors can converge. In collaboration with Brage Hognestad Hasler.</p>
+      <div class="tags"><span class="tag">Hoddevik</span><span class="tag">Landscape</span><span class="tag">Community</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/52956-image15-edited.webp" alt="" class="span2">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/2c2d1-utennavn-2-edited.webp" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/60dc2-gk62023_aho_severin_kokaas_ingebretsen_06-edited.webp" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="architecture"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/05/78966-torsdag1135-vegardogseverin_side_03-edited.webp?w=1024">
+  <div class="project-header">
+    <span class="project-title">Sognsveien 8</span>
+    <div class="project-meta">Oslo<br>GK6</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Project</h2>
+      <p>GK6 — Sognsveien 8, Oslo.</p>
+      <div class="tags"><span class="tag">Oslo</span><span class="tag">Housing</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/05/78966-torsdag1135-vegardogseverin_side_03-edited.webp?w=1024" alt="" class="span2">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/05/f34b1-2.2-edited.webp?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/cba88-torsdag1135-vegardogseverin_side_09.webp?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/48cdb-dsc03265.webp?w=1024" alt="">
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ DESIGN ══════════════ -->
+<p class="section-label" data-section="design">Design</p>
+
+<div class="project-item" data-cat="design"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/04/10442-img_5009.webp?w=768">
+  <div class="project-header">
+    <span class="project-title">Contour</span>
+    <div class="project-meta">Kristiansand<br>2025</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Design</h2>
+      <p>The Concrete Sculpture for Wilds Minne School in Kristiansand — a 3D-printed concrete sculpture drawn from the contours of the site's surrounding landscape.</p>
+      <div class="tags"><span class="tag">Sculpture</span><span class="tag">Concrete</span><span class="tag">3D Print</span><span class="tag">Public</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/10442-img_5009.webp?w=768" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/d3022-img_5022.webp?w=768" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/64d9a-wms_side.webp" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/d4bd9-wms_detalj.webp" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="design"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/img_5125-edited.png">
+  <div class="project-header">
+    <span class="project-title">Display Table</span>
+    <div class="project-meta">2022<br>Plywood + Glass</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Furniture</h2>
+      <p>2022 — Plywood and glass display table.</p>
+      <div class="tags"><span class="tag">Furniture</span><span class="tag">Plywood</span><span class="tag">Glass</span><span class="tag">2022</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/img_5125-edited.png" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/img_5253-edited.png" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/img_5258-edited-1.png" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/05/5454f-img_5021-edited.webp" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="design"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/aw_03609-edited.jpg">
+  <div class="project-header">
+    <span class="project-title">Tile Table</span>
+    <div class="project-meta">2025<br>Plywood + Carrara</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Furniture</h2>
+      <p>2025 — Plywood and Carrara marble tile table.</p>
+      <div class="tags"><span class="tag">Furniture</span><span class="tag">Plywood</span><span class="tag">Marble</span><span class="tag">2025</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_03609-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_03611-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_03614-edited.jpg" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="design"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/img_2485-1-edited.jpg">
+  <div class="project-header">
+    <span class="project-title">Engagement Ring</span>
+    <div class="project-meta">2024<br>Sigurd Shaba</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Jewellery</h2>
+      <p>2024 — Designed and shaped by hand, cast by goldsmith Sigurd Shaba.</p>
+      <div class="tags"><span class="tag">Jewellery</span><span class="tag">Handmade</span><span class="tag">2024</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/img_2485-1-edited.jpg" alt="" class="span2">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw-6a3d17f99f641-edited.png" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/chatgpt-image-25.-juni-2026-14_01_02-edited.png" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="design"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/img_4113.jpg?w=768">
+  <div class="project-header">
+    <span class="project-title">Serve Table</span>
+    <div class="project-meta">2025<br>Made to Order</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Furniture</h2>
+      <p>2025 — Plywood in four parts. Made to order.</p>
+      <div class="tags"><span class="tag">Furniture</span><span class="tag">Plywood</span><span class="tag">Bespoke</span><span class="tag">2025</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/img_4113.jpg?w=768" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/img_4112.jpg?w=768" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/img_4107.jpg?w=768" alt="">
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PHOTOGRAPHY ══════════════ -->
+<p class="section-label" data-section="photography">Photography</p>
+
+<div class="project-item" data-cat="photography"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/aw_02358.jpg?w=683">
+  <div class="project-header">
+    <span class="project-title">Ivorie Studio</span>
+    <div class="project-meta">2026<br>Sony A7III · 85mm</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Photography</h2>
+      <p>Sony A7III + Sony G-Master 85mm.</p>
+      <div class="tags"><span class="tag">Studio</span><span class="tag">Portrait</span><span class="tag">2026</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_02358.jpg?w=683" alt="" class="span2">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_00931.jpg?w=683" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_00942.jpg?w=683" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_02317.jpg?w=683" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="photography"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/aw_08471.jpg?w=683">
+  <div class="project-header">
+    <span class="project-title">Oslo September</span>
+    <div class="project-meta">2025<br>Sony A7III · 85mm</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Photography</h2>
+      <p>Oslo, September 2025. Sony A7III + Sony G-Master 85mm.</p>
+      <div class="tags"><span class="tag">Oslo</span><span class="tag">Street</span><span class="tag">2025</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_08471.jpg?w=683" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_08510.jpg?w=683" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/aw_07095.jpg?w=1024" alt="" class="span2">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="photography"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/04/9316c-dsc00379.webp?w=1024">
+  <div class="project-header">
+    <span class="project-title">Gamle Hvam</span>
+    <div class="project-meta">2025<br>Sony A7III · 28–70mm</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Photography</h2>
+      <p>Gamle Hvam, 2025. Sony A7III + Sony 28-70mm.</p>
+      <div class="tags"><span class="tag">Landscape</span><span class="tag">Norway</span><span class="tag">2025</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/9316c-dsc00379.webp?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/cf3b3-dsc00334.webp?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/00cb6-dsc00311.webp?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/04/439bd-dsc00363.webp?w=1024" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="photography"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/p1010257-edited.jpg?w=768">
+  <div class="project-header">
+    <span class="project-title">Sunnmøre</span>
+    <div class="project-meta">2025<br>Sony A7III · 28–70mm</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Photography</h2>
+      <p>Sunnmøre, 2025. Sony A7III + Sony 28-70mm.</p>
+      <div class="tags"><span class="tag">Landscape</span><span class="tag">Norway</span><span class="tag">2025</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/p1010257-edited.jpg?w=768" alt="" class="span2">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/p1010261.jpg?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/p1010173.jpg?w=1024" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="photography"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/p7260067-edited.jpg">
+  <div class="project-header">
+    <span class="project-title">Madeira</span>
+    <div class="project-meta">2024<br>Panasonic Lumix</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Photography</h2>
+      <p>Madeira, 2024. Panasonic Lumix DMC-TZ80.</p>
+      <div class="tags"><span class="tag">Travel</span><span class="tag">Madeira</span><span class="tag">2024</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/p7260067-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/p7260061-edited-1.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/p7260092-edited.jpg" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/p1010224.jpg?w=1024" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="photography"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/img_8092.jpeg?w=978">
+  <div class="project-header">
+    <span class="project-title">Valldalen</span>
+    <div class="project-meta">2024<br>Olympus</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Photography</h2>
+      <p>Valldalen, 2024. Olympus.</p>
+      <div class="tags"><span class="tag">Landscape</span><span class="tag">Norway</span><span class="tag">2024</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/img_8092.jpeg?w=978" alt="" class="span2">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/p1010236.jpg?w=1024" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/p1010142.jpg?w=1024" alt="">
+    </div>
+  </div>
+</div>
+
+<div class="project-item" data-cat="photography"
+  data-cover="https://atelierwinther.com/wp-content/uploads/2026/06/p1060648.jpg?w=768">
+  <div class="project-header">
+    <span class="project-title">Lofoten</span>
+    <div class="project-meta">2024<br>Canon A1</div>
+  </div>
+  <div class="project-body">
+    <div class="project-text">
+      <h2>Photography</h2>
+      <p>Lofoten, 2024. Canon A1 — analogue.</p>
+      <div class="tags"><span class="tag">Analogue</span><span class="tag">Lofoten</span><span class="tag">Canon A1</span><span class="tag">2024</span></div>
+    </div>
+    <div class="project-images">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/p1060648.jpg?w=768" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/p1060668.jpg?w=768" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/p1060700.jpg?w=768" alt="">
+      <img src="https://atelierwinther.com/wp-content/uploads/2026/06/img_4289-edited.jpg" alt="">
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <span>Severin Kokaas Winther</span>
+  <span>Atelier Winther · Oslo</span>
+</footer>
+
+<script>
+  // ── Hover preview ──
+  const preview = document.getElementById('preview');
+  const previewImg = preview.querySelector('img');
+  let mx = 0, my = 0, raf;
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  function trackPreview() {
+    const w = preview.offsetWidth || 340;
+    const h = preview.offsetHeight || 260;
+    let x = mx + 30, y = my - h / 2;
+    if (x + w > window.innerWidth - 16) x = mx - w - 30;
+    if (y < 16) y = 16;
+    if (y + h > window.innerHeight - 16) y = window.innerHeight - h - 16;
+    preview.style.left = x + 'px';
+    preview.style.top  = y + 'px';
+    raf = requestAnimationFrame(trackPreview);
+  }
+
+  document.querySelectorAll('.project-item').forEach(item => {
+    const cover = item.dataset.cover;
+
+    item.querySelector('.project-header').addEventListener('mouseenter', () => {
+      if (!cover || item.classList.contains('open')) return;
+      previewImg.src = cover;
+      preview.classList.add('on');
+      raf = requestAnimationFrame(trackPreview);
+    });
+
+    item.querySelector('.project-header').addEventListener('mouseleave', () => {
+      preview.classList.remove('on');
+      cancelAnimationFrame(raf);
+    });
+
+    item.querySelector('.project-header').addEventListener('click', () => {
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.project-item.open').forEach(o => o.classList.remove('open'));
+      preview.classList.remove('on');
+      cancelAnimationFrame(raf);
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
+  // ── Category filter ──
+  const labels = document.querySelectorAll('.section-label');
+
+  document.querySelectorAll('.nav-links a[data-filter]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const f = link.dataset.filter;
+      document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+      link.classList.add('active');
+
+      if (f === 'about') {
+        window.location.href = 'https://atelierwinther.com/about-2/';
+        return;
+      }
+
+      document.querySelectorAll('.project-item').forEach(item => {
+        item.classList.remove('open');
+        item.classList.toggle('hidden', f !== 'all' && item.dataset.cat !== f);
+      });
+
+      labels.forEach(lbl => {
+        const sec = lbl.dataset.section;
+        lbl.style.display = (f === 'all' || f === sec) ? '' : 'none';
+      });
+    });
+  });
+</script>
