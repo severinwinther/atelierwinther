@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cover Image Reassigner</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #111; color: #eee; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  #top { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+  #projects-panel { width: 340px; flex-shrink: 0; border-right: 1px solid #333; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .proj-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 4px; cursor: pointer; border: 2px solid transparent; background: #1a1a1a; transition: background 0.1s; }
+  .proj-item:hover { background: #252525; }
+  .proj-item.selected { border-color: #f0c040; background: #2a2500; }
+  .proj-item.confirmed { border-color: #40c060; }
+  .proj-thumb { width: 60px; height: 40px; object-fit: cover; border-radius: 2px; background: #333; flex-shrink: 0; border: 1px solid #444; }
+  .proj-info { flex: 1; min-width: 0; }
+  .proj-title { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .proj-cat { font-size: 10px; color: #888; text-transform: uppercase; }
+  .proj-status { font-size: 10px; margin-top: 2px; }
+  .proj-item.confirmed .proj-status { color: #40c060; }
+  .proj-item:not(.confirmed) .proj-status { color: #888; }
+  #pool-panel { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+  #pool-header { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  #search { flex: 1; padding: 6px 10px; background: #222; border: 1px solid #444; color: #eee; border-radius: 4px; font-size: 13px; }
+  #pool-count { font-size: 12px; color: #888; white-space: nowrap; }
+  #pool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 4px; overflow-y: auto; flex: 1; }
+  .pool-img { aspect-ratio: 4/3; object-fit: cover; cursor: pointer; border-radius: 2px; border: 2px solid transparent; background: #222; transition: border-color 0.1s; width: 100%; display: block; }
+  .pool-img:hover { border-color: #f0c040; }
+  .pool-img.selected-pool { border-color: #f0c040; box-shadow: 0 0 0 2px #f0c040; }
+  .pool-img-wrap { position: relative; }
+  .pool-img-name { position: absolute; bottom: 0; left: 0; right: 0; font-size: 9px; color: #ddd; background: rgba(0,0,0,0.7); padding: 2px 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: none; }
+  .pool-img-wrap:hover .pool-img-name { display: block; }
+  #bottom { border-top: 1px solid #333; padding: 8px 12px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; background: #181818; }
+  #progress { font-size: 13px; color: #aaa; flex: 1; }
+  button { padding: 7px 16px; border-radius: 4px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
+  #btn-confirm { background: #f0c040; color: #111; }
+  #btn-confirm:disabled { background: #555; color: #999; cursor: default; }
+  #btn-reset { background: #444; color: #eee; }
+  #btn-generate { background: #40c060; color: #111; }
+  #current-label { font-size: 12px; color: #aaa; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="top">
+  <div id="projects-panel"></div>
+  <div id="pool-panel">
+    <div id="pool-header">
+      <input id="search" type="text" placeholder="Filter images by name…" oninput="filterPool()">
+      <span id="pool-count"></span>
+    </div>
+    <div id="pool-grid"></div>
+  </div>
+</div>
+<div id="bottom">
+  <span id="progress">Select a project on the left, then click an image on the right.</span>
+  <span id="current-label"></span>
+  <button id="btn-reset" onclick="resetCurrent()">Reset</button>
+  <button id="btn-confirm" onclick="confirmCurrent()" disabled>Confirm ✓</button>
+  <button id="btn-generate" onclick="generateScript()">Generate fix-covers.py ↓</button>
+</div>
+<script>
+const PROJECTS = [{"cat": "architecture", "title": "Stall S\u00f8ndre", "cover": "img/aw_08958.jpg"}, {"cat": "architecture", "title": "Tabuno", "cover": "img/dsc_3437-ferdig-edited.jpg"}, {"cat": "architecture", "title": "MAXXI Museum", "cover": "img/7e801-binder1.pdf_side_06.webp"}, {"cat": "architecture", "title": "Critical Mass: Under Pressure", "cover": "img/a1_105.jpg"}, {"cat": "architecture", "title": "Cultura+ AHO Landscape Lab", "cover": "img/lysthus-58-of-85-edited.jpg"}, {"cat": "architecture", "title": "Pavilion Assembly", "cover": "img/a2_103-edited.jpg"}, {"cat": "architecture", "title": "Pavilion Assembly Manual", "cover": "img/250226_lysthus_assembly-manual_side_01.jpg"}, {"cat": "architecture", "title": "Cultura+ Ultima Music Festival", "cover": "img/3b_cultura_assembly_print_side_01.jpg"}, {"cat": "architecture", "title": "Cultura+ Assembly Manual", "cover": "img/f1b92-winther2cseverinkokaas_presentation_06.01.2026_side_74.jpg"}, {"cat": "architecture", "title": "Handle with Care", "cover": "img/aw-6a0ef1b33662c.png"}, {"cat": "architecture", "title": "Along Stone Fences", "cover": "img/52956-image15-edited.webp"}, {"cat": "architecture", "title": "Sognsveien 8", "cover": "img/78966-torsdag1135-vegardogseverin_side_03-edited.webp"}, {"cat": "design", "title": "Contour", "cover": "img/10442-img_5009.webp"}, {"cat": "design", "title": "Display Table", "cover": "img/img_5125-edited.png"}, {"cat": "design", "title": "Tile Table", "cover": "img/aw_03609-edited.jpg"}, {"cat": "design", "title": "Engagement Ring", "cover": "img/img_2485-1-edited.jpg"}, {"cat": "design", "title": "Serve Table", "cover": "img/img_4113.jpg"}, {"cat": "photography", "title": "Ivorie Studio", "cover": "img/aw_02358.jpg"}, {"cat": "photography", "title": "Oslo September", "cover": "img/aw_08471.jpg"}, {"cat": "photography", "title": "Gamle Hvam", "cover": "img/9316c-dsc00379.webp"}, {"cat": "photography", "title": "Sunnm\u00f8re", "cover": "img/p1010257-edited.jpg"}, {"cat": "photography", "title": "Madeira", "cover": "img/p7260067-edited.jpg"}, {"cat": "photography", "title": "Valldalen", "cover": "img/img_8092.jpeg"}, {"cat": "photography", "title": "Lofoten", "cover": "img/p1060648.jpg"}];
+const ALL_IMAGES = ["00785-opprissc_bild_print.webp", "00cb6-dsc00311.webp", "00eba-aw_08552.webp", "016c1-snittd_bild_print.webp", "0190a-3b_cultura_assembly_print_side_15.webp", "01bf8-a2.webp", "026a3-binder1.pdf_side_01.webp", "02f4a-a2_100.webp", "0326a-a0_306.jpg", "039af-winther2cseverinkokaas_presentation_06.01.2026_side_12.jpg", "03e6c-torsdag1135-vegardogseverin_side_10.webp", "04102-dsc00341.webp", "05a81-3b_cultura_assembly_print_side_42.webp", "05f9f-wms_perspektiv.webp", "06b44-a0_206.jpg", "06cbd-3b_cultura_assembly_print_side_56.webp", "07559-3b_cultura_assembly_print_side_12.webp", "08b28-winther2cseverinkokaas_presentation_06.01.2026_side_59.jpg", "0a3a6-winther2cseverinkokaas_presentation_06.01.2026_side_64.jpg", "0a65b-3b_cultura_assembly_print_side_51.webp", "0a673-winther2cseverinkokaas_presentation_06.01.2026_side_22.jpg", "0aae4-img_2087.webp", "0bc30-dsc_3442-ferdig.jpg", "0bdb3-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_12.webp", "0ce91-binder1.pdf_side_22.webp", "0df9c-img_2100.webp", "0e60f-aw_08647.webp", "0e90a-aw_08535.webp", "0f676-binder1.pdf_side_20.webp", "0f8c5-ut2ny.webp", "101a4-aw_02871.webp", "1036d-1704879401942-a42dae21-8a06-4b5f-9b37-0c76a36dcc13_8.webp", "10442-img_5009.webp", "10569-a2_104.webp", "108c3-wms_zoom.webp", "10910-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_9.jpg", "11e61-dsc03197.webp", "12517-winther2cseverinkokaas_presentation_06.01.2026_side_43.jpg", "12591-winther2cseverinkokaas_presentation_06.01.2026_side_05.jpg", "13258-aw_08537.webp", "136eb-aw_03530.webp", "13811-img_2130.webp", "13976-3b_cultura_assembly_print_side_8.webp", "14120-winther2cseverinkokaas_presentation_06.01.2026_side_13.jpg", "15226-dsc03265-edited.webp", "15226-dsc03265.webp", "15dbe-winther2cseverinkokaas_presentation_06.01.2026_side_34.jpg", "160b1-aw_08656.webp", "16180-aw_03607.webp", "169a8-dsc00314.webp", "17c71-dsc03268.webp", "18138-winther2cseverinkokaas_presentation_06.01.2026_side_67.jpg", "1afb5-dsc00325.webp", "1bc4c-aw_03546.webp", "1bfa2-torsdag1135-vegardogseverin_side_04.webp", "1c0c4-winther2cseverinkokaas_presentation_06.01.2026_side_14.jpg", "1c349-winther2cseverinkokaas_presentation_06.01.2026_side_66.jpg", "1cde0-winther2cseverinkokaas_presentation_06.01.2026_side_29.jpg", "1d67c-3dtomt_perspektiv_ovenfra_boks_lys.webp", "1dc42-opprissd_bild_print.webp", "1eeb8-img_2089.webp", "1f48b-img_2116.webp", "2.0_side_05-edited.jpg", "2.0_side_05.jpg", "2.0_side_16-edited.jpg", "2.0_side_16.jpg", "2092f-aw_03449-edited.webp", "2092f-aw_03449.webp", "232bb-240522_final_bhh_skwi_side_12.webp", "240522_final_bhh_skwi_side_32.jpg", "240522_final_bhh_skwi_side_38.jpg", "240522_final_bhh_skwi_side_40.jpg", "241fc-image91-edited.webp", "241fc-image91.webp", "24f6d-aw_03582.webp", "250226_lysthus_assembly-manual_side_01.jpg", "250226_lysthus_assembly-manual_side_24.jpg", "250226_lysthus_assembly-manual_side_39.jpg", "250226_lysthus_assembly-manual_side_53.jpg", "250226_lysthus_assembly-manual_side_56.jpg", "25412-torsdag1135-vegardogseverin_side_14.webp", "25810-dsc03230.webp", "2601a-dsc00444.webp", "2684d-img_0482.webp", "26a1c-dsc00316.webp", "279e4-collage-edited.webp", "279e4-collage.webp", "2824b-3b_cultura_assembly_print_side_40.webp", "2854c-aw_03570.webp", "28a92-a2_105.webp", "28bfa-3b_cultura_assembly_print_side_27.webp", "293d2-dsc06020.webp", "29cf5-opprissa_bild_print.webp", "2a22e-binder1.pdf_side_12.webp", "2afcc-torsdag1135-vegardogseverin_side_17.webp", "2bff5-dsc_3519-ferdig.webp", "2c2d1-utennavn-2-edited.webp", "2c2d1-utennavn-2.webp", "2c63d-3b_cultura_assembly_print_side_53.webp", "2c8e7-binder1.pdf_side_15.webp", "2cad4-1704879401942-a42dae21-8a06-4b5f-9b37-0c76a36dcc13_7.webp", "2cf8f-torsdag1135-vegardogseverin_side_15.webp", "2d63a-aw_03605.webp", "2d856-binder1.pdf_side_17.webp", "2d9f3-winther2cseverinkokaas_presentation_06.01.2026_side_78.jpg", "2f0ed-aw_08631.webp", "2f156-image15.webp", "2f435-3b_cultura_assembly_print_side_32.webp", "304fa-240522_final_bhh_skwi_side_04.webp", "313be-modellfoto1282of329-edited.webp", "313be-modellfoto1282of329.webp", "32279-dsc00348.webp", "32691-winther2cseverinkokaas_presentation_06.01.2026_side_38.jpg", "32c87-img_2068.webp", "32ff3-ut428129.webp", "341a8-3b_cultura_assembly_print_side_34.webp", "34b1d-winther2cseverinkokaas_presentation_06.01.2026_side_41.jpg", "351c5-img_0444.webp", "35635-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_7.jpg", "361d3-binder1.pdf_side_05.webp", "364bc-aw_08691.webp", "364f7-dsc00317.webp", "37dff-img_2136.webp", "38107-winther2cseverinkokaas_presentation_06.01.2026_side_35.jpg", "385c2-aw_08616.webp", "38650-49570204977_fdbec79f3c_o.webp", "38c34-winther2cseverinkokaas_presentation_06.01.2026_side_06.jpg", "38dca-winther2cseverinkokaas_presentation_06.01.2026_side_10.jpg", "39713-a0_310.jpg", "3aa5c-aw_02935.webp", "3aa68-3b_cultura_assembly_print_side_18.webp", "3af86-240522_final_bhh_skwi_side_11.webp", "3b_cultura_assembly_print_side_01.jpg", "3b_cultura_assembly_print_side_28.jpg", "3b_cultura_assembly_print_side_37.jpg", "3b_cultura_assembly_print_side_40.jpg", "3cdb1-3b_cultura_assembly_print_side_5.jpeg", "3e130-3b_cultura_assembly_print_side_37.webp", "3fca8-aw_08635.webp", "4009c-img_7805.jpg", "401bf-utennavn-1-edited.webp", "401bf-utennavn-1.webp", "4307a-dsc03204.webp", "438f4-img_2115.webp", "439bd-dsc00363.webp", "43a88-3b_cultura_assembly_print_side_35.webp", "43c41-aw_08634.webp", "4402d-winther2cseverinkokaas_presentation_06.01.2026_side_37.jpg", "44963-aw_08596.webp", "44ee9-gk62023_aho_severin_kokaas_ingebretsen_02.webp", "457af-dsc00335.webp", "45c5e-dsc00330.webp", "45dd3-p1040513.webp", "45f9f-dsc00431.webp", "46047-binder1.pdf_side_18.webp", "46422-winther2cseverinkokaas_presentation_06.01.2026_side_57.jpg", "4681c-a1.webp", "480d9-binder1.pdf_side_08.webp", "48cdb-dsc03265.webp", "48f8f-binder1.pdf_side_16.webp", "492ad-dsc00312.webp", "49ede-ut1.webp", "4a5e7-aw_03608.webp", "4af20-3b_cultura_assembly_print_side_22.webp", "4bbf4-dsc00411.webp", "4c51d-winther2cseverinkokaas_presentation_06.01.2026_side_33.jpg", "4c8ee-img_2104.webp", "4d0c4-torsdag1135-vegardogseverin_side_16.webp", "4d446-aw_08580.webp", "4e397-p1070437-edited.webp", "4e397-p1070437.webp", "4f23e-winther2cseverinkokaas_presentation_06.01.2026_side_71.jpg", "4fdb0-3b_cultura_assembly_print_side_44.webp", "50ae0-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_8.webp", "50b5c-3b_cultura_assembly_print_side_24.webp", "5241b-dsc00028.webp", "52956-image15-edited.webp", "52956-image15.webp", "52fc9-plan_overlay.webp", "53bcc-gk62023_aho_severin_kokaas_ingebretsen_01.webp", "53e57-p1040517.webp", "54102-3b_cultura_assembly_print_side_19.webp", "5454f-img_5021-edited.webp", "5454f-img_5021.webp", "55f14-1704879401942-a42dae21-8a06-4b5f-9b37-0c76a36dcc13_6.webp", "56157-byvilla01.png", "56339-winther2cseverinkokaas_presentation_06.01.2026_side_20.jpg", "569aa-aw_08550.webp", "56ece-skannetdokument22-edited.jpg", "56ece-skannetdokument22.jpg", "581c3-3b_cultura_assembly_print_side_52.webp", "585a5-dsc_3447-ferdig.jpg", "58f61-a5.webp", "5919a-aw_02869.webp", "59b9a-winther2cseverinkokaas_presentation_06.01.2026_side_30.jpg", "59c80-img_2121.webp", "5a689-binder1.pdf_side_03.webp", "5a790-aw_03449.webp", "5ac1e-torsdag1135-vegardogseverin_side_12.webp", "5ac8e-winther2cseverinkokaas_presentation_06.01.2026_side_21.jpg", "5b2a2-gk62023_aho_severin_kokaas_ingebretsen_04.webp", "5b33e-49569976621_b6c92dfabe_o.webp", "5bed2-aw_08605.webp", "5c567-dsc_3461-ferdig.jpg", "5cb18-img_0460.webp", "5d9ea-binder1.pdf_side_19.webp", "5dff3-img_2105.webp", "5e43f-dsc00366.webp", "5e74d-img_5020.webp", "5e884-binder1.pdf_side_04.webp", "5f0ff-dsc_3511-ferdig.jpg", "5f3f5-2.3.5.webp", "5f6ef-a0_320.jpg", "5f9a8-aw_08644.webp", "606a0-ut428129.webp", "60dc2-gk62023_aho_severin_kokaas_ingebretsen_06-edited.webp", "60dc2-gk62023_aho_severin_kokaas_ingebretsen_06.webp", "61b5a-dsc03173.webp", "61cfa-winther2cseverinkokaas_presentation_06.01.2026_side_51.jpg", "633774a6-c426-43c8-aa2c-40cc689f252e-labbet-app-edited.jpg", "633774a6-c426-43c8-aa2c-40cc689f252e-labbet-app.jpg", "63fd3-dsc03145.webp", "6460d-aw_03574.webp", "64d9a-wms_side.webp", "667a7-3b_cultura_assembly_print_side_10.webp", "6680f-camscanner04-14-202018.19.58_6.webp", "6712d-winther2cseverinkokaas_presentation_06.01.2026_side_70.jpg", "6738c-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_3.jpg", "6773a-rb-rauch-10-2857-1.webp", "67a67-winther2cseverinkokaas_presentation_06.01.2026_side_58.jpg", "680a6-aw_03540.webp", "69035-3b_cultura_assembly_print_side_16.webp", "692cd-3b_cultura_assembly_print_side_43.webp", "6946f-aw_08591.webp", "69edb-winther2cseverinkokaas_presentation_06.01.2026_side_60.jpg", "6a328-3b_cultura_assembly_print_side_21.webp", "6a375-aw_03538.webp", "6aa37-3b_cultura_assembly_print_side_20.webp", "6acc6-img_2128.webp", "6b2ac-a2_301.webp", "6b319-img_20200414_190822-1.webp", "6bdd5-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_2.jpg", "6c249-aw_03581.webp", "6ca58-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_8.jpg", "6d081-img_0467.webp", "6d15b-ut428229.webp", "6d299-binder1.pdf_side_24.webp", "6d572-dsc00383.webp", "6d5f0-binder1.pdf_side_09.webp", "6e633-binder1.pdf_side_14.webp", "6efe6-dji_0031.webp", "6f5b1-winther2cseverinkokaas_presentation_06.01.2026_side_28.jpg", "6fd9f-3b_cultura_assembly_print_side_9.webp", "70cfe-dsc06043.webp", "71030-img_2103.webp", "711e8-render282of229.webp", "71253-opprissb_bild_print.webp", "71649-winther2cseverinkokaas_presentation_06.01.2026_side_11.jpg", "71e5c-3b_cultura_assembly_print_side_45.webp", "72178-winther2cseverinkokaas_presentation_06.01.2026_side_15.jpg", "72572-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_7.webp", "74747-1704879401942-a42dae21-8a06-4b5f-9b37-0c76a36dcc13_4.webp", "7649a-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_13.webp", "770b0-winther2cseverinkokaas_presentation_06.01.2026_side_50.jpg", "78274-dsc00319.webp", "7862b-dsc00320.webp", "78966-torsdag1135-vegardogseverin_side_03-edited.webp", "78966-torsdag1135-vegardogseverin_side_03.webp", "7972a-dsc06031-edited.webp", "7972a-dsc06031.webp", "79b90-aw_03600.webp", "79f01-a2_202.webp", "7b68e-aw_08485.webp", "7b6c6-winther2cseverinkokaas_presentation_06.01.2026_side_72.jpg", "7b703-aw_03475.webp", "7bf7d-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_1.jpg", "7bfb6-240522_final_bhh_skwi_side_06.webp", "7c110-3b_cultura_assembly_print_side_17.webp", "7c47c-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_1.webp", "7c70b-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_11.jpg", "7c777-aw_08571.webp", "7e801-binder1.pdf_side_06.webp", "7ea74-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_4.webp", "7f701-plan_bild_print.webp", "7f806-3b_cultura_assembly_print_side_6.jpeg", "7f930-img_7827.jpg", "80c2e-winther2cseverinkokaas_presentation_06.01.2026_side_23.jpg", "81001-winther2cseverinkokaas_presentation_06.01.2026_side_25.jpg", "81ca7-a2_30028129.webp", "83588-240522_final_bhh_skwi_side_05.webp", "838d6-240522_final_bhh_skwi_side_09.webp", "83a06-a6.webp", "84e7c-3b_cultura_assembly_print_side_31.webp", "8618a-img_2102.webp", "868b6-alle_bild_print.webp", "869b9-aw_02920.webp", "86f3f-3b_cultura_assembly_print_side_14.webp", "87371-winther2cseverinkokaas_presentation_06.01.2026_side_63.jpg", "87cc5-a0_212.jpg", "87ea3-winther2cseverinkokaas_presentation_06.01.2026_side_09.jpg", "88e24-binder1.pdf_side_23.webp", "8914d-filter_1.webp", "8918a-3b_cultura_assembly_print_side_54.webp", "89369-img_2119.webp", "898ab-img_2106.webp", "89b63-img_2066.webp", "8b91c-3b_cultura_assembly_print_side_13.webp", "8bf57-2.2.webp", "8c46f-winther2cseverinkokaas_presentation_06.01.2026_side_26.jpg", "8cfd2-winther2cseverinkokaas_presentation_06.01.2026_side_39.jpg", "8e370-3b_cultura_assembly_print_side_23.webp", "8ea7d-binder1.pdf_side_21.webp", "9224b-3b_cultura_assembly_print_side_7.webp", "92d50-3b_cultura_assembly_print_side_1.jpeg", "92f77-byvilla2.webp", "9316c-dsc00379.webp", "937c5-img_7850.jpg", "93b14-3b_cultura_assembly_print_side_41.webp", "94166-camscanner04-15-202015.43.03_6.webp", "944fe-byvilla6.png", "951b2-winther2cseverinkokaas_presentation_06.01.2026_side_48.jpg", "95b79-byvilla4.png", "95e7d-dsc06007.webp", "96321-torsdag1135-vegardogseverin_side_05.webp", "972bd-gk62023_aho_severin_kokaas_ingebretsen_03.webp", "9793c-3b_cultura_assembly_print_side_50.webp", "9832f-winther2cseverinkokaas_presentation_06.01.2026_side_36.jpg", "993f0-a2_10128129.webp", "998a0-img_2108.webp", "99b89-snitta_bild_print.webp", "9a5df-240522_final_bhh_skwi_side_07.webp", "9a805-aw_08499.webp", "9ae58-aw_03462.webp", "9b22b-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_9.webp", "9c66f-240522_final_bhh_skwi_side_10.webp", "9d172-winther2cseverinkokaas_presentation_06.01.2026_side_53.jpg", "9da7d-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_11.webp", "9daf4-binder2.pdf_side_084.jpg", "9de58-winther2cseverinkokaas_presentation_06.01.2026_side_31.jpg", "9e3d2-winther2cseverinkokaas_presentation_06.01.2026_side_16.jpg", "9f164-dsc06006.webp", "9f4cb-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_3.webp", "9f5c4-winther2cseverinkokaas_presentation_06.01.2026_side_52.jpg", "9fa69-dsc03146.webp", "9fa83-image13.webp", "9fc69-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_10.jpg", "a08b7-p1040526.webp", "a1.png", "a1320-dsc_3437-ferdig.jpg", "a1d9e-aw_03542.webp", "a1_105.jpg", "a1_501.jpg", "a2f3e-a2_103.webp", "a2_100.jpg", "a2_101-1.jpg", "a2_103-edited.jpg", "a2_103.jpg", "a2_104.jpg", "a2_105.jpg", "a2_202.jpg", "a2_300-1.jpg", "a2_301.jpg", "a2_402.jpg", "a2_403.jpg", "a4896-aw_03492.webp", "a5892-img_2127.webp", "a64f9-a0_205.jpg", "a6a8a-3b_cultura_assembly_print_side_2.jpeg", "a7204-3b_cultura_assembly_print_side_46.webp", "a7cff-byvilla2.png", "a89b6-presentasjon2_side_02.webp", "a8c3f-winther2cseverinkokaas_presentation_06.01.2026_side_65.jpg", "a8c8e-opprissd_bild_print.webp", "a8f16-winther2cseverinkokaas_presentation_06.01.2026_side_49.jpg", "a9629-snittb_bild_print.webp", "a975b-1704879401942-a42dae21-8a06-4b5f-9b37-0c76a36dcc13_2.webp", "a97a6-img_2064.webp", "a9aed-p1040538.webp", "aa488-torsdag1135-vegardogseverin_side_06.webp", "aaf3c-dsc_3519-ferdig-edited.jpg", "aaf3c-dsc_3519-ferdig.jpg", "ab1ab-3b_cultura_assembly_print_side_3.jpeg", "ab5be-dsc03262.webp", "abf94-dsc06011.webp", "ac3f1-p1040538.webp", "ac624-3b_cultura_assembly_print_side_4.jpeg", "aea66-winther2cseverinkokaas_presentation_06.01.2026_side_03.jpg", "af4fe-winther2cseverinkokaas_presentation_06.01.2026_side_61.jpg", "afb80-dsc_3435-ferdig.jpg", "atelierwinther-art-logo-black.png", "atelierwinther-sketch-logo-black.png", "aw-6a0ef1b33662c.png", "aw-6a0ef256048d1.png", "aw-6a3d16d5bf2b6.png", "aw-6a3d17f99f641-edited-1.png", "aw-6a3d17f99f641-edited.png", "aw-6a3d17f99f641.png", "aw-6a3d5dbc010a8.png", "aw_00931.jpg", "aw_00942.jpg", "aw_01008.jpg", "aw_02033.jpg", "aw_02317.jpg", "aw_02355.jpg", "aw_02358.jpg", "aw_03523.jpg", "aw_03609-edited.jpg", "aw_03609.jpg", "aw_03611-edited.jpg", "aw_03611.jpg", "aw_03614-edited.jpg", "aw_03614.jpg", "aw_03615-edited.jpg", "aw_03615.jpg", "aw_05951.jpg", "aw_07095.jpg", "aw_08471.jpg", "aw_08510.jpg", "aw_08592-edited.jpg", "aw_08592.jpg", "aw_08655-edited.jpg", "aw_08655.jpg", "aw_08724-edited.jpg", "aw_08724.jpg", "aw_08861.jpg", "aw_08907.jpg", "aw_08958.jpg", "b0185-aw_08490.webp", "b04f9-aw_08497.webp", "b0876-p1040511.webp", "b1f89-240522_final_bhh_skwi_side_03.webp", "b2c51-3b_cultura_assembly_print_side_55.webp", "b2fb8-winther2cseverinkokaas_presentation_06.01.2026_side_24.jpg", "b3491-img_2071.webp", "b3c6f-3b_cultura_assembly_print_side_25.webp", "b41d5-aw_03558.webp", "b4612-byvilla2.webp", "b4ac4-aw_02875.webp", "b5400-dsc03273.webp", "b5676-snittc_bild_print.webp", "b5855-240522_final_bhh_skwi_side_31.webp", "b5b4b-aw_03584.webp", "b6744-dsc00377.webp", "b800b-img_5025.webp", "b8a6d-winther2cseverinkokaas_presentation_06.01.2026_side_75.jpg", "b936a-winther2cseverinkokaas_presentation_06.01.2026_side_02.jpg", "b9e22-240522_final_bhh_skwi_side_02.webp", "ba2b9-img_2107.webp", "ba624-3b_cultura_assembly_print_side_47.webp", "baedf-aw_08610.webp", "bb318-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_6.jpg", "bbee0-presentasjon2_side_09.webp", "bc70a-img_5008.webp", "bd146-img_2069.webp", "bd253-aw_08491.webp", "bd9bf-winther2cseverinkokaas_presentation_06.01.2026_side_44.jpg", "bdcb0-img_7825.jpg", "bdfce-winther2cseverinkokaas_presentation_06.01.2026_side_19.jpg", "be616-a2_402.webp", "bf086-winther2cseverinkokaas_presentation_06.01.2026_side_77.jpg", "bfb6a-binder1.pdf_side_13.webp", "bfbf0-winther2cseverinkokaas_presentation_06.01.2026_side_08.jpg", "binder1.pdf_side_01-1.jpg", "binder1.pdf_side_01.jpg", "binder1.pdf_side_02.jpg", "binder1.pdf_side_03.jpg", "binder1.pdf_side_04.jpg", "binder1.pdf_side_05-edited-1.jpg", "binder1.pdf_side_05-edited.jpg", "binder1.pdf_side_05.jpg", "binder1.pdf_side_06.jpg", "binder1.pdf_side_07.jpg", "binder1.pdf_side_08.jpg", "binder1.pdf_side_09.jpg", "binder1.pdf_side_10.jpg", "binder1.pdf_side_11.jpg", "binder1.pdf_side_12.jpg", "binder1.pdf_side_13.jpg", "binder1.pdf_side_14.jpg", "binder1.pdf_side_15.jpg", "binder1.pdf_side_16.jpg", "binder1.pdf_side_17.jpg", "binder1.pdf_side_18.jpg", "binder1.pdf_side_19-edited.jpg", "binder1.pdf_side_19.jpg", "binder1.pdf_side_20.jpg", "binder1.pdf_side_21.jpg", "binder1.pdf_side_22.jpg", "binder1.pdf_side_23.jpg", "binder1.pdf_side_24.jpg", "binder1_pdf-page-1.png", "bla-illu.png", "c0d59-aw_08621.webp", "c15ce-winther2cseverinkokaas_presentation_06.01.2026_side_40.jpg", "c18b6-img_2126.webp", "c1b54-1704879401942-a42dae21-8a06-4b5f-9b37-0c76a36dcc13_3.webp", "c2395-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_10.webp", "c4fbf-winther2cseverinkokaas_presentation_06.01.2026_side_55.jpg", "c53d7-dsc00361.webp", "c57b3-winther2cseverinkokaas_presentation_06.01.2026_side_17.jpg", "c6275-img_5029.webp", "c6c5e881-6255-4678-ab08-615273736e34-labbet-app-edited.jpeg", "c6c5e881-6255-4678-ab08-615273736e34-labbet-app.jpeg", "c6dcf-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_12.jpg", "c741a-dsc00333.webp", "c7d41-img_086211.webp", "c981b-a0_225.jpg", "c9ef8-49569475623_9274a5b7e1_o.webp", "ca217-img_2124.webp", "ca42b-portrett2025-025.jpg", "caa4a-plan1til200utsnittmedfolkps035b34315d.webp", "cae4e-winther2cseverinkokaas_presentation_06.01.2026_side_76.jpg", "caf57-winther2cseverinkokaas_presentation_06.01.2026_side_01.jpg", "cba88-torsdag1135-vegardogseverin_side_09.webp", "cbd50-img_5002.webp", "cbf9b-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_6.webp", "cd4ca-dsc03158.webp", "cd4cb-winther2cseverinkokaas_presentation_06.01.2026_side_04.jpg", "cdc2f-3b_cultura_assembly_print_side_48.webp", "ce128-binder1.pdf_side_02.webp", "ce2e9-aw_08554.webp", "cf3b3-dsc00334.webp", "cf5ce-3b_cultura_assembly_print_side_33.webp", "cfd42-presentasjon2_side_04.webp", "chatgpt-image-25.-juni-2026-14_01_02-edited-1.png", "chatgpt-image-25.-juni-2026-14_01_02-edited.png", "chatgpt-image-25.-juni-2026-14_01_02.png", "d03b4-img_2101.webp", "d03e8-byvilla7.png", "d04ce-3b_cultura_assembly_print_side_30.webp", "d0baf-winther2cseverinkokaas_presentation_06.01.2026_side_46.jpg", "d12d0-wms_zoom.webp", "d21fe-img_2100-edited.webp", "d21fe-img_2100.webp", "d2360-img_5023.webp", "d2be9-img_5016.webp", "d3022-img_5022.webp", "d3912-winther2cseverinkokaas_presentation_06.01.2026_side_73.jpg", "d3aab-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_2.webp", "d4bd9-wms_detalj.webp", "d588b-winther2cseverinkokaas_presentation_06.01.2026_side_32.jpg", "d5ad4-dsc_3492-ferdig.jpg", "d6ef6-winther2cseverinkokaas_presentation_06.01.2026_side_56.jpg", "d7316-winther2cseverinkokaas_presentation_06.01.2026_side_54.jpg", "d8734-fasade_sogn_nyfasade.webp", "d875a-presentasjon2_side_10.webp", "d90ff-aw_08507.webp", "d92e7-dsc03260.webp", "d9c76-3b_cultura_assembly_print_side_39.webp", "da8e3-aw_08685.webp", "db0c9-dsc_3476-ferdig.jpg", "dbcc5-camscanner20.08.202514.14n_4.jpg", "dbe2a-3b_cultura_assembly_print_side_26.webp", "dc076-img_2129.webp", "dd144-1704879401942-a42dae21-8a06-4b5f-9b37-0c76a36dcc13_5.webp", "ddb2b-winther2cseverinkokaas_presentation_06.01.2026_side_68.jpg", "de72c-winther2cseverinkokaas_presentation_06.01.2026_side_69.jpg", "dee16-dsc03156.webp", "defd3-a3.webp", "df2ec-torsdag1135-vegardogseverin_side_07.webp", "dsc02500-edited.jpg", "dsc02500.jpg", "dsc_3437-ferdig-edited.jpg", "dsc_3437-ferdig.jpg", "dsc_3447-ferdig-edited.jpg", "dsc_3447-ferdig.jpg", "dsc_3492-ferdig-edited.jpg", "dsc_3492-ferdig.jpg", "dsc_3519-ferdig-edited.jpg", "dsc_3519-ferdig.jpg", "e02f3-aw_08592.webp", "e11c3-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_5.jpg", "e184e-winther2cseverinkokaas_presentation_06.01.2026_side_45.jpg", "e1e9f-winther2cseverinkokaas_presentation_06.01.2026_side_27.jpg", "e2c2e-3b_cultura_assembly_print_side_36.webp", "e5653-aw_08621.webp", "e6743-camscanner04-14-202018.19.58_2.webp", "e683a-winther2cseverinkokaas_presentation_06.01.2026_side_07.jpg", "e7405-winther2cseverinkokaas_presentation_06.01.2026_side_42.jpg", "e7726-dsc03158.webp", "e7a8d-3b_cultura_assembly_print_side_29.webp", "e7d02-winther2cseverinkokaas_presentation_06.01.2026_side_62.jpg", "e8101-ut6ny.webp", "e8262-binder1.pdf_side_07.webp", "e82e2-byvilla5.png", "e9d7b-winther2cseverinkokaas_presentation_06.01.2026_side_47.jpg", "ea2bb-aw_02916.webp", "ea4c6-presentasjon2_side_05.webp", "eb772-3b_cultura_assembly_print_side_38.webp", "eb794-aw_03527.webp", "ebbd0-binder1.pdf_side_10.webp", "ec063-1704881426590-4300feb3-62e8-40ab-89b1-7e2f473b53f2_5.webp", "ecf0b-binder1.pdf_side_11.webp", "ed247-torsdag1135-vegardogseverin_side_13.webp", "ee54a-aw_02922.webp", "eea86-49569475768_575885bbe3_o.webp", "eed5d-wms_zoom.webp", "f0554-a2_403.webp", "f0660-dsc_3479-ferdig.jpg", "f0ab9-3b_cultura_assembly_print_side_49.webp", "f140e-torsdag1135-vegardogseverin_side_08.webp", "f1b92-winther2cseverinkokaas_presentation_06.01.2026_side_74.jpg", "f1d1c-aw_03493.webp", "f22c1-aw_08494.webp", "f34b1-2.2-edited.webp", "f34b1-2.2.webp", "f4069-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_4.jpg", "f4bc4-dsc00385.webp", "f6d63-winther2cseverinkokaas_presentation_06.01.2026_side_18.jpg", "f6f3d-aw_08638.webp", "f7019-2.1.webp", "f7825-aw_08637.webp", "f7b2f-aw_03572.webp", "f8510-torsdag1135-vegardogseverin_side_11.webp", "f8b2e-img_2109.webp", "f995a-1704879401942-a42dae21-8a06-4b5f-9b37-0c76a36dcc13_1.webp", "f99db-240522_final_bhh_skwi_side_08.webp", "f9f0d-a4.webp", "fa650-aw_03560.webp", "fb740-img_2090.webp", "fb97d-presentasjon2_side_08.webp", "fcca1-3b_cultura_assembly_print_side_28.webp", "fcf76-ut5.webp", "fd4bf-camscanner04-14-202018.19.58_3.webp", "fe58b-1704879451150-09eadeca-0401-4a84-9136-67e9a38208f9_13.jpg", "febee-3b_cultura_assembly_print_side_11.webp", "ff3cb-aw_03569.webp", "gemini_generated_image_km0vppkm0vppkm0v.png", "hammerkilen-33-page-1.png", "img_2009.jpg", "img_2100-copy.jpg", "img_2485-1-edited-1.jpg", "img_2485-1-edited.jpg", "img_2485-1.jpg", "img_2485.jpg", "img_2788-page-1-1.png", "img_2788-page-1-2.png", "img_2788-page-1-3.png", "img_2788-page-1-4.png", "img_2788-page-1.png", "img_2788-page-3.png", "img_3429-edited-1.jpeg", "img_3429-edited.jpeg", "img_3429.jpeg", "img_3603-edited.jpg", "img_3603.jpg", "img_4074-edited.jpg", "img_4074.jpg", "img_4107.jpg", "img_4112.jpg", "img_4113.jpg", "img_4273-edited.jpg", "img_4273.jpg", "img_4279-edited-1.jpg", "img_4279-edited-2.jpg", "img_4279-edited.jpg", "img_4279.jpg", "img_4289-edited.jpg", "img_4289.jpg", "img_4290-edited.jpg", "img_4290.jpg", "img_4854-edited.jpg", "img_4854.jpg", "img_4859-edited.jpg", "img_4859.jpg", "img_4984-1-edited.jpg", "img_4984-1.jpg", "img_4984.jpg", "img_5002.jpg", "img_5076-edited.jpeg", "img_5076.jpeg", "img_5125-edited.png", "img_5125.png", "img_5186.jpg", "img_5253-edited.png", "img_5253.png", "img_5258-edited-1.png", "img_5258-edited.png", "img_5258.png", "img_5425-edited.jpeg", "img_5425.jpeg", "img_5721.jpg", "img_5723-edited.jpeg", "img_5723.jpeg", "img_6066.jpg", "img_6267.jpg", "img_6831.jpg", "img_8092.jpeg", "img_8093.jpeg", "img_8588.jpg", "img_8589.jpg", "lomsesanden-page-2.png", "lomsesanden-page-3.png", "lysthus-58-of-85-edited.jpg", "lysthus-58-of-85.jpg", "lysthus-65-of-85-edited.jpg", "lysthus-65-of-85.jpg", "lysthusd-18-of-23-edited.jpg", "lysthusd-18-of-23.jpg", "p1010142.jpg", "p1010143-edited.jpg", "p1010143.jpg", "p1010173.jpg", "p1010224.jpg", "p1010236.jpg", "p1010257-edited.jpg", "p1010257.jpg", "p1010261.jpg", "p1060648.jpg", "p1060668.jpg", "p1060700.jpg", "p7050066-edited.jpg", "p7050066.jpg", "p7260061-edited-1.jpg", "p7260061-edited.jpg", "p7260061.jpg", "p7260067-edited.jpg", "p7260067.jpg", "p7260092-edited.jpg", "p7260092.jpg", "verk1-edited.png", "verk1.png"];
+let selectedProject = null;
+let selectedPoolImg = null;
+let assignments = PROJECTS.map(p => p.cover.replace('img/', ''));
+let confirmed = new Array(PROJECTS.length).fill(false);
+
+const projPanel = document.getElementById('projects-panel');
+PROJECTS.forEach((p, i) => {
+  const div = document.createElement('div');
+  div.className = 'proj-item';
+  div.id = 'proj-' + i;
+  div.onclick = () => selectProject(i);
+  div.innerHTML = '<img class="proj-thumb" id="thumb-' + i + '" src="img/' + assignments[i] + '" onerror="this.style.opacity=\'0.3\'">'
+    + '<div class="proj-info">'
+    + '<div class="proj-title">' + p.title + '</div>'
+    + '<div class="proj-cat">' + p.cat + '</div>'
+    + '<div class="proj-status" id="status-' + i + '">not confirmed</div>'
+    + '</div>';
+  projPanel.appendChild(div);
+});
+
+let filteredImages = [...ALL_IMAGES];
+const poolGrid = document.getElementById('pool-grid');
+
+function renderPool() {
+  poolGrid.innerHTML = '';
+  filteredImages.forEach(fname => {
+    const wrap = document.createElement('div');
+    wrap.className = 'pool-img-wrap';
+    const img = document.createElement('img');
+    img.className = 'pool-img';
+    img.src = 'img/' + fname;
+    img.title = fname;
+    img.dataset.fname = fname;
+    img.loading = 'lazy';
+    img.onerror = function() { this.style.opacity = '0.15'; };
+    img.onclick = () => selectPoolImg(fname);
+    if (selectedPoolImg === fname) img.classList.add('selected-pool');
+    const label = document.createElement('div');
+    label.className = 'pool-img-name';
+    label.textContent = fname;
+    wrap.appendChild(img);
+    wrap.appendChild(label);
+    poolGrid.appendChild(wrap);
+  });
+  document.getElementById('pool-count').textContent = filteredImages.length + ' / ' + ALL_IMAGES.length;
+}
+
+function filterPool() {
+  const q = document.getElementById('search').value.toLowerCase();
+  filteredImages = q ? ALL_IMAGES.filter(f => f.toLowerCase().includes(q)) : [...ALL_IMAGES];
+  renderPool();
+}
+
+function selectProject(i) {
+  selectedProject = i;
+  selectedPoolImg = null;
+  document.querySelectorAll('.proj-item').forEach(el => el.classList.remove('selected'));
+  document.getElementById('proj-' + i).classList.add('selected');
+  const cur = assignments[i];
+  document.getElementById('progress').textContent = (i+1) + '/24 — "' + PROJECTS[i].title + '" — current: ' + cur;
+  document.getElementById('current-label').textContent = '';
+  document.getElementById('btn-confirm').disabled = true;
+  document.querySelectorAll('.pool-img').forEach(el => {
+    el.classList.toggle('selected-pool', el.dataset.fname === cur);
+  });
+  const curEl = poolGrid.querySelector('[data-fname="' + CSS.escape(cur) + '"]');
+  if (curEl) curEl.scrollIntoView({ block: 'nearest' });
+}
+
+function selectPoolImg(fname) {
+  selectedPoolImg = fname;
+  document.querySelectorAll('.pool-img').forEach(el => {
+    el.classList.toggle('selected-pool', el.dataset.fname === fname);
+  });
+  if (selectedProject !== null) {
+    document.getElementById('current-label').textContent = '→ ' + fname;
+    document.getElementById('btn-confirm').disabled = false;
+    document.getElementById('thumb-' + selectedProject).src = 'img/' + fname;
+  }
+}
+
+function confirmCurrent() {
+  if (selectedProject === null || !selectedPoolImg) return;
+  assignments[selectedProject] = selectedPoolImg;
+  confirmed[selectedProject] = true;
+  document.getElementById('thumb-' + selectedProject).src = 'img/' + selectedPoolImg;
+  document.getElementById('proj-' + selectedProject).classList.add('confirmed');
+  document.getElementById('status-' + selectedProject).textContent = '✓ ' + selectedPoolImg;
+  const n = confirmed.filter(Boolean).length;
+  document.getElementById('progress').textContent = n + '/24 confirmed' + (n === 24 ? ' — All done! Click Generate.' : '');
+  const next = confirmed.findIndex((c, i) => !c && i > selectedProject);
+  if (next !== -1) selectProject(next);
+  else { const first = confirmed.findIndex(c => !c); if (first !== -1) selectProject(first); }
+}
+
+function resetCurrent() {
+  if (selectedProject === null) return;
+  assignments[selectedProject] = PROJECTS[selectedProject].cover.replace('img/', '');
+  confirmed[selectedProject] = false;
+  document.getElementById('thumb-' + selectedProject).src = 'img/' + assignments[selectedProject];
+  document.getElementById('proj-' + selectedProject).classList.remove('confirmed');
+  document.getElementById('status-' + selectedProject).textContent = 'not confirmed';
+  selectProject(selectedProject);
+}
+
+function generateScript() {
+  const lines = ['import re', 'with open("index.html", "r", encoding="utf-8") as f:', '    html = f.read()', '', 'replacements = ['];
+  PROJECTS.forEach((p, i) => {
+    const o = p.cover, n = 'img/' + assignments[i];
+    if (o !== n) lines.push('    (' + JSON.stringify(o) + ', ' + JSON.stringify(n) + '),  # ' + p.title);
+  });
+  lines.push(']', '', 'for old, new in replacements:', '    html = html.replace(f\'data-cover="{old}"\', f\'data-cover="{new}"\', 1)', '', 'with open("index.html", "w", encoding="utf-8") as f:', '    f.write(html)', '', 'print("Done.")');
+  const blob = new Blob([lines.join('\n')], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'fix-covers.py'; a.click();
+}
+
+renderPool();
+selectProject(0);
+</script>
+</body>
+</html>
