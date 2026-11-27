@@ -189,7 +189,7 @@ nav { display: flex; gap: 3px; justify-content: flex-end; }
 
   /* Viser tittel + år + pil fast under bildene på mobil */
   .mobile-info {
-    display: flex !important;
+    display: flex;
     align-items: baseline; gap: 10px;
     padding: 14px 20px env(safe-area-inset-bottom, 20px);
     border-top: 1px solid var(--line);
@@ -207,6 +207,9 @@ nav { display: flex; gap: 3px; justify-content: flex-end; }
   .info-strip.open { max-height: 120px; }
   .info-strip-inner { padding: 12px 20px 8px; }
 }
+
+/* Mobile-info: skjult på desktop, synlig på mobil via media-query */
+.mobile-info { display: none; }
 
 /* Images column (wrapper for area + info-strip) */
 .images-col { display: flex; flex-direction: column; }
@@ -436,7 +439,7 @@ nav { display: flex; gap: 3px; justify-content: flex-end; }
         </div>
       </div>
       <!-- Mobil: tittel + år + pil (skjult på desktop via CSS) -->
-      <div class="mobile-info" id="mobile-info" style="display:none">
+      <div class="mobile-info" id="mobile-info">
         <span class="mi-title" id="mi-title">—</span>
         <span class="mi-year" id="mi-year"></span>
         <button class="mi-btn" id="mi-btn">↓</button>
