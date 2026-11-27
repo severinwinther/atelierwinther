@@ -26,8 +26,12 @@
   },
   {
     "id": "2026_Randfals.com",
-    "cover": null,
-    "bilder": [],
+    "cover": "prosjekter/2026_Randfals.com/06_randfals_forside.png",
+    "bilder": [
+      "prosjekter/2026_Randfals.com/06_randfals_forside.png",
+      "prosjekter/2026_Randfals.com/07_randfals_index.png",
+      "prosjekter/2026_Randfals.com/08_randfals_prosjekt.png"
+    ],
     "tittel": "Randfals.com",
     "kategori": "Nettside",
     "i samarbeid med": "-",
