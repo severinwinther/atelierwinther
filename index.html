@@ -163,7 +163,9 @@ nav { display: flex; gap: 3px; justify-content: flex-end; }
   width:  var(--img-w);
   height: var(--img-h);
   flex-shrink: 0;
-  background: var(--img-color, #ccc);
+  background: var(--img-color, #DEDAD4);
+  background-size: cover;
+  background-position: center;
 }
 
 /* ════════════════════════════════
@@ -420,26 +422,28 @@ nav { display: flex; gap: 3px; justify-content: flex-end; }
 <div class="mockup-badge">Konsept / Mockup</div>
 
 <script>
-/* ── Shared project data ── */
-const PROJECTS = [
-  { num: '001', title: 'Critical Mass',
-    tags: ['IDENTITET', 'BRANDING'], client: 'Critical Mass', year: '2024',
-    colors: ['#2A2825', '#3D3A36', '#1E1C1A', '#4A4540'], link: '#' },
-  { num: '002', title: 'Cultura+ Ultima',
-    tags: ['IDENTITET', 'FESTIVAL'], client: 'Ultima', year: '2024',
-    colors: ['#C2BEB8', '#A8A49E'], link: '#' },
-  { num: '003', title: 'AHO Landscape Lab',
-    tags: ['IDENTITET', 'TRYKK'], client: 'AHO', year: '2023',
-    colors: ['#7A8A70', '#8A9A80', '#6A7A62'], link: '#' },
-  { num: '004', title: 'Pavilion Assembly',
-    tags: ['ARKITEKTUR', 'PUBLIKASJON'], client: 'Pavilion', year: '2023',
-    colors: ['#E8E4DE', '#D8D4CE', '#CCC8C2'], link: '#' },
-  { num: '005', title: 'Handle with Care',
-    tags: ['BRANDING', 'FILM'], client: 'Handle with Care', year: '2022',
-    colors: ['#E0D8CE', '#C8C0B6', '#D4CCB2', '#B8B0A6'], link: '#' }
-];
+/* ── Last prosjektdata fra prosjekter.json ── */
+let PROJECTS = [];
 
-/* ── Page routing ── */
+async function loadProjects() {
+  try {
+    const data = await fetch('prosjekter.json').then(r => r.json());
+    PROJECTS = data.map((p, i) => ({
+      num:    String(i + 1).padStart(3, '0'),
+      title:  p.tittel || p.id,
+      tags:   [p.kategori ? p.kategori.toUpperCase() : 'PROSJEKT'],
+      client: p.klient || p['i samarbeid med'] || '—',
+      year:   String(p.år || ''),
+      images: p.bilder || [],
+      cover:  p.cover  || null,
+      link:   '#'
+    }));
+  } catch (e) {
+    console.error('Kunne ikke laste prosjekter.json', e);
+  }
+}
+
+/* ── Sideruting ── */
 let currentPage = 'studio';
 
 function showPage(id) {
@@ -464,7 +468,7 @@ document.querySelectorAll('[data-page]').forEach(el => {
 /* ════════════════════════════════
    STUDIO PAGE LOGIC
 ════════════════════════════════ */
-(function () {
+function initStudioPage() {
   const N        = PROJECTS.length;
   const area     = document.getElementById('images-area');
   const panel    = document.getElementById('text-panel');
@@ -472,16 +476,22 @@ document.querySelectorAll('[data-page]').forEach(el => {
   const HEADER_H = 56;
   const DURATION = 820;
 
-  /* build rows ×3 */
+  /* bygg rader ×3 */
   function makeRow(p) {
     const row = document.createElement('div');
     row.className = 'project-images';
-    p.colors.forEach(c => {
+    if (p.images && p.images.length > 0) {
+      p.images.forEach(imgSrc => {
+        const b = document.createElement('div');
+        b.className = 'img-block';
+        b.style.backgroundImage = `url(${imgSrc})`;
+        row.appendChild(b);
+      });
+    } else {
       const b = document.createElement('div');
       b.className = 'img-block';
-      b.style.setProperty('--img-color', c);
       row.appendChild(b);
-    });
+    }
     return row;
   }
 
@@ -613,12 +623,12 @@ document.querySelectorAll('[data-page]').forEach(el => {
   };
 
   window.studioInit();
-})();
+}
 
 /* ════════════════════════════════
    ARBEID INDEX
 ════════════════════════════════ */
-(function () {
+function initArbeidPage() {
   const list = document.getElementById('arbeid-list');
   PROJECTS.forEach(p => {
     const row = document.createElement('a');
@@ -632,5 +642,11 @@ document.querySelectorAll('[data-page]').forEach(el => {
       `<span class="ai-year">${p.year}</span>`;
     list.appendChild(row);
   });
-})();
+}
+
+/* ── Bootstrap ── */
+loadProjects().then(() => {
+  initStudioPage();
+  initArbeidPage();
+});
 </script>
