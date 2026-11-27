@@ -39,8 +39,13 @@
   },
   {
     "id": "2024_Wilds Minne Skole",
-    "cover": null,
-    "bilder": [],
+    "cover": "prosjekter/2024_Wilds Minne Skole/IMG_5008.jpg",
+    "bilder": [
+      "prosjekter/2024_Wilds Minne Skole/IMG_5008.jpg",
+      "prosjekter/2024_Wilds Minne Skole/IMG_5009.jpg",
+      "prosjekter/2024_Wilds Minne Skole/IMG_5021.jpg",
+      "prosjekter/2024_Wilds Minne Skole/IMG_5029.jpg"
+    ],
     "tittel": "Wilds Minne Skole",
     "kategori": "3D-printet betong",
     "i samarbeid med": "Knut Magnus Baustad, Mechatronics Innovation Lab",
