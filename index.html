@@ -124,99 +124,55 @@ nav { display: flex; gap: 3px; justify-content: flex-end; }
   stroke: currentColor; fill: none; stroke-width: 1.5;
 }
 
-/* Årstall i høyre panel */
-.t-year-big {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 52px; letter-spacing: 0.02em; line-height: 1;
-  font-variant-numeric: tabular-nums;
+/* Årstall i høyre panel — lite og diskret */
+.t-year {
+  font-size: 10px; color: var(--mid);
+  font-variant-numeric: tabular-nums; letter-spacing: 0.05em;
+  display: block;
 }
-.site-main.row-hover .t-year-big { color: var(--bg); }
+.site-main.row-hover .t-year { color: rgba(245,243,239,0.55); }
 
-/* ── Detaljskuff ── */
-.detail-drawer {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 500;
-  background: var(--bg);
-  border-top: 1px solid var(--line);
-  padding: 36px 40px 52px;
-  transform: translateY(100%);
-  transition: transform 0.38s cubic-bezier(0.32,0,0.15,1);
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 40px;
-  max-width: 1100px;
-  margin: 0 auto;
-  left: 50%; transform: translateX(-50%) translateY(100%);
-  width: 100%;
-}
-.detail-drawer.open {
-  transform: translateX(-50%) translateY(0);
-}
-.detail-drawer-backdrop {
-  position: fixed; inset: 0; z-index: 499;
-  background: transparent;
-  display: none;
-}
-.detail-drawer-backdrop.open { display: block; }
-
-.dd-label {
-  font-size: 8px; font-weight: 500;
-  letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--mid); display: block; margin-bottom: 5px;
-}
-.dd-value {
-  font-size: 13px; line-height: 1.5;
-}
-.dd-title-big {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(28px, 3vw, 44px);
-  letter-spacing: 0.03em; line-height: 1.0;
-}
-.dd-close {
-  position: absolute; top: 20px; right: 24px;
-  font-size: 9px; font-weight: 500;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--mid); cursor: pointer; border: none; background: none;
-  padding: 6px;
-}
-.dd-close:hover { color: var(--fg); }
-.dd-link {
-  display: inline-flex; align-items: center;
+/* Pil-toggle i venstre panel */
+.t-expand {
+  display: inline-flex; align-items: center; gap: 5px;
   font-size: 9px; font-weight: 500;
   letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--fg); text-decoration: none;
-  padding: 5px 10px; border: 1px solid var(--fg); border-radius: 1px;
-  margin-top: 20px;
-  transition: background 0.15s, color 0.15s;
+  color: var(--mid); background: none; border: none;
+  cursor: pointer; padding: 0; margin-top: 20px;
+  transition: color 0.15s;
 }
-.dd-link:hover { background: var(--fg); color: var(--bg); }
-.dd-link svg { width: 8px; height: 8px; margin-left: 6px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+.t-expand:hover { color: var(--fg); }
+.t-expand .arrow {
+  display: inline-block;
+  transition: transform 0.25s ease;
+  font-style: normal;
+}
+.t-expand.open .arrow { transform: rotate(180deg); }
+.site-main.row-hover .t-expand { color: rgba(245,243,239,0.55); }
+.site-main.row-hover .t-expand:hover { color: var(--bg); }
 
-/* ── Mobil-bar (vises bare på liten skjerm) ── */
-.mobile-bar {
-  display: none;
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 200;
-  background: var(--bg);
+/* Info-stripe under bildene */
+.info-strip {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.32s cubic-bezier(0.4,0,0.2,1);
+  margin-top: 0;
+}
+.info-strip.open {
+  max-height: 80px;
+}
+.info-strip-inner {
+  display: flex; gap: 32px; flex-wrap: wrap;
+  padding: 14px 0 10px;
   border-top: 1px solid var(--line);
-  padding: 14px 20px env(safe-area-inset-bottom, 20px);
-  cursor: pointer;
-  align-items: baseline;
-  gap: 10px;
 }
-.mb-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px; letter-spacing: 0.03em; flex: 1;
+.is-field { display: flex; flex-direction: column; gap: 3px; }
+.is-label {
+  font-size: 8px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--mid);
 }
-.mb-year {
-  font-size: 10px; color: var(--mid);
-  font-variant-numeric: tabular-nums;
-}
-.mb-arrow {
-  font-size: 10px; color: var(--mid);
-}
+.is-value { font-size: 11px; }
 
 /* ── Mobil-layout ── */
 @media (max-width: 680px) {
@@ -225,27 +181,33 @@ nav { display: flex; gap: 3px; justify-content: flex-end; }
   #page-studio .text-wrap,
   #page-studio .right-wrap { display: none; }
 
-  #page-studio .site-main {
-    grid-template-columns: 1fr;
-  }
-  .images-area {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
+  #page-studio .site-main { grid-template-columns: 1fr; }
 
-  .mobile-bar { display: flex; }
+  .images-area { padding-left: 20px; padding-right: 20px; }
 
-  /* Skuff er full-width på mobil */
-  .detail-drawer {
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    padding: 28px 20px calc(env(safe-area-inset-bottom, 0px) + 36px);
-    left: 0; transform: translateY(100%);
-    max-width: 100%;
+  /* Viser tittel + år + pil fast under bildene på mobil */
+  .mobile-info {
+    display: flex !important;
+    align-items: baseline; gap: 10px;
+    padding: 14px 20px env(safe-area-inset-bottom, 20px);
+    border-top: 1px solid var(--line);
+    background: var(--bg);
   }
-  .detail-drawer.open { transform: translateY(0); }
-  .dd-title-big { grid-column: 1 / -1; }
+  .mi-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px; letter-spacing: 0.03em; flex: 1;
+  }
+  .mi-year { font-size: 10px; color: var(--mid); font-variant-numeric: tabular-nums; }
+  .mi-btn {
+    font-size: 10px; color: var(--mid); background: none;
+    border: none; cursor: pointer; padding: 0;
+  }
+  .info-strip.open { max-height: 120px; }
+  .info-strip-inner { padding: 12px 20px 8px; }
 }
+
+/* Images column (wrapper for area + info-strip) */
+.images-col { display: flex; flex-direction: column; }
 
 /* Images area */
 .images-area {
@@ -455,44 +417,33 @@ nav { display: flex; gap: 3px; justify-content: flex-end; }
   </nav>
 </header>
 
-<!-- Detaljskuff (delt mellom pages) -->
-<div class="detail-drawer-backdrop" id="drawer-backdrop"></div>
-<div class="detail-drawer" id="detail-drawer" style="position:fixed;">
-  <button class="dd-close" id="drawer-close">Lukk ✕</button>
-  <div class="dd-title-big" id="dd-title"></div>
-  <div>
-    <span class="dd-label">Kategori</span>
-    <span class="dd-value" id="dd-cat"></span>
-  </div>
-  <div>
-    <span class="dd-label">År</span>
-    <span class="dd-value" id="dd-year"></span>
-  </div>
-  <div>
-    <span class="dd-label">Samarbeid</span>
-    <span class="dd-value" id="dd-client"></span>
-    <a class="dd-link" id="dd-link" href="#">Se prosjekt <svg viewBox="0 0 10 10"><path d="M1 9L9 1M9 1H3M9 1v6"/></svg></a>
-  </div>
-</div>
-
 <!-- ══ STUDIO PAGE ══ -->
 <div id="page-studio" class="page visible">
   <main class="site-main">
     <div class="text-wrap">
       <div class="text-panel" id="text-panel"></div>
     </div>
-    <div class="images-area" id="images-area"></div>
+    <div class="images-col">
+      <div class="images-area" id="images-area"></div>
+      <!-- Info-stripe (dropdown under bildene) -->
+      <div class="info-strip" id="info-strip">
+        <div class="info-strip-inner">
+          <div class="is-field"><span class="is-label">Kategori</span><span class="is-value" id="is-cat"></span></div>
+          <div class="is-field"><span class="is-label">År</span><span class="is-value" id="is-year"></span></div>
+          <div class="is-field"><span class="is-label">Samarbeid</span><span class="is-value" id="is-client"></span></div>
+        </div>
+      </div>
+      <!-- Mobil: tittel + år + pil (skjult på desktop via CSS) -->
+      <div class="mobile-info" id="mobile-info" style="display:none">
+        <span class="mi-title" id="mi-title">—</span>
+        <span class="mi-year" id="mi-year"></span>
+        <button class="mi-btn" id="mi-btn">↓</button>
+      </div>
+    </div>
     <div class="right-wrap">
       <div class="right-panel" id="right-panel"></div>
     </div>
   </main>
-</div>
-
-<!-- Mobil-bar -->
-<div class="mobile-bar" id="mobile-bar">
-  <span class="mb-title" id="mb-title">—</span>
-  <span class="mb-year" id="mb-year"></span>
-  <span class="mb-arrow">↑</span>
 </div>
 
 <!-- ══ ARBEID PAGE ══ -->
@@ -656,26 +607,58 @@ function initStudioPage() {
   let activeIdx = -1, animating = false, fadeTimer = null;
   let wheelAccum = 0, touchStartY = 0;
 
+  let infoOpen = false;
+
   function setPanel(p) {
     panel.style.opacity = '0';
     rpanel.style.opacity = '0';
     clearTimeout(fadeTimer);
+    /* Lukk info-strip ved prosjektbytte */
+    infoOpen = false;
+    const strip  = document.getElementById('info-strip');
+    const expBtn = document.getElementById('expand-btn');
+    if (strip)  strip.classList.remove('open');
+    if (expBtn) { expBtn.classList.remove('open'); expBtn.querySelector('.arrow').textContent = '↓'; }
+
     fadeTimer = setTimeout(() => {
       panel.innerHTML =
         `<span class="t-num">${p.num}</span>` +
         `<span class="t-label">Prosjekttittel</span>` +
         `<h2 class="t-title">${p.title}</h2>` +
-        `<div class="t-tags">${p.tags.map(t=>`<span class="t-tag">${t}</span>`).join('')}</div>`;
-      rpanel.innerHTML =
-        `<span class="t-year-big">${p.year || '—'}</span>`;
+        `<button class="t-expand" id="expand-btn"><i class="arrow">↓</i> Info</button>`;
+      rpanel.innerHTML = `<span class="t-year">${p.year || '—'}</span>`;
       panel.style.opacity = '1';
       rpanel.style.opacity = '1';
-      /* Mobil-bar */
-      const mbTitle = document.getElementById('mb-title');
-      const mbYear  = document.getElementById('mb-year');
-      if (mbTitle) mbTitle.textContent = p.title;
-      if (mbYear)  mbYear.textContent  = p.year || '';
+
+      /* Fyll inn info-stripe-felt */
+      const setCat    = document.getElementById('is-cat');
+      const setYear   = document.getElementById('is-year');
+      const setClient = document.getElementById('is-client');
+      if (setCat)    setCat.textContent    = p.tags.join(', ');
+      if (setYear)   setYear.textContent   = p.year || '—';
+      if (setClient) setClient.textContent = p.client;
+
+      /* Mobil */
+      const miTitle = document.getElementById('mi-title');
+      const miYear  = document.getElementById('mi-year');
+      if (miTitle) miTitle.textContent = p.title;
+      if (miYear)  miYear.textContent  = p.year || '';
+
+      /* Pil-toggle */
+      document.getElementById('expand-btn')?.addEventListener('click', toggleInfo);
+      document.getElementById('mi-btn')?.addEventListener('click', toggleInfo);
     }, 180);
+  }
+
+  function toggleInfo() {
+    infoOpen = !infoOpen;
+    const strip  = document.getElementById('info-strip');
+    const expBtn = document.getElementById('expand-btn');
+    const miBtn  = document.getElementById('mi-btn');
+    strip?.classList.toggle('open', infoOpen);
+    expBtn?.classList.toggle('open', infoOpen);
+    if (expBtn) expBtn.querySelector('.arrow').textContent = infoOpen ? '↑' : '↓';
+    if (miBtn)  miBtn.textContent = infoOpen ? '↑' : '↓';
   }
 
   function easeInOutQuart(t) {
@@ -766,35 +749,6 @@ function initStudioPage() {
       mainEl.classList.remove('row-hover');
   });
 
-  /* ── Skuff: åpne ved klikk på aktiv rad / mobil-bar ── */
-  const drawer   = document.getElementById('detail-drawer');
-  const backdrop = document.getElementById('drawer-backdrop');
-  const mobileBar = document.getElementById('mobile-bar');
-
-  function openDrawer(p) {
-    document.getElementById('dd-title').textContent  = p.title;
-    document.getElementById('dd-cat').textContent    = p.tags.join(', ');
-    document.getElementById('dd-year').textContent   = p.year || '—';
-    document.getElementById('dd-client').textContent = p.client;
-    const lnk = document.getElementById('dd-link');
-    if (lnk) { lnk.href = p.link === '#' ? '#' : p.link; }
-    drawer.classList.add('open');
-    backdrop.classList.add('open');
-  }
-  function closeDrawer() {
-    drawer.classList.remove('open');
-    backdrop.classList.remove('open');
-  }
-
-  area.addEventListener('click', e => {
-    const row = e.target.closest('.project-images.active');
-    if (row) openDrawer(PROJECTS[activeIdx % N]);
-  });
-  if (mobileBar) mobileBar.addEventListener('click', () => {
-    if (activeIdx >= 0) openDrawer(PROJECTS[activeIdx % N]);
-  });
-  backdrop.addEventListener('click', closeDrawer);
-  document.getElementById('drawer-close').addEventListener('click', closeDrawer);
 
   window.studioInit = function () {
     activeIdx = -1;
