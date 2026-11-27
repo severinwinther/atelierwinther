@@ -39,8 +39,10 @@
   },
   {
     "id": "2025_Tabuno",
-    "cover": null,
-    "bilder": [],
+    "cover": "prosjekter/2025_Tabuno/AW_08961.jpg",
+    "bilder": [
+      "prosjekter/2025_Tabuno/AW_08961.jpg"
+    ],
     "tittel": "Tabuno",
     "kategori": "Interiør",
     "i samarbeid med": "Dien Nguyen",
