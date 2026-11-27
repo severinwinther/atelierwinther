@@ -1,8 +1,12 @@
 [
   {
     "id": "2026_wh-form.no",
-    "cover": null,
-    "bilder": [],
+    "cover": "prosjekter/2026_wh-form.no/03_whform_forside.png",
+    "bilder": [
+      "prosjekter/2026_wh-form.no/03_whform_forside.png",
+      "prosjekter/2026_wh-form.no/04_whform_galleri.png",
+      "prosjekter/2026_wh-form.no/05_whform_om.png"
+    ],
     "tittel": "WH-form.com",
     "kategori": "Nettside",
     "i samarbeid med": "-",
