@@ -1,725 +1,636 @@
+<!-- ATELIER WINTHER — Redesign Concept v10 (3 pages, black active frame, centered logo) -->
 <title>Atelier Winther</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --bg: #0e0e0e;
-    --fg: #ede9e3;
-    --muted: #4a4a4a;
-    --line: #1e1e1e;
-    --accent: #ede9e3;
-    color-scheme: dark;
-  }
+:root {
+  --bg:      #F5F3EF;
+  --fg:      #0D0D0C;
+  --mid:     #9A9690;
+  --line:    #DEDAD4;
+  --h:       56px;
+  --lw:      200px;
+  --rw:      180px;
+  --img-w:   200px;
+  --img-h:   133px;
+  --row-gap: 10px;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--fg); }
+body {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 13px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
 
-  * { box-sizing: border-box; }
+/* ── Header ── */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  height: var(--h);
+  background: var(--bg);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 28px;
+}
+.hdr-left {
+  font-size: 11px; color: var(--mid);
+}
+.wordmark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px; letter-spacing: 0.06em;
+  color: var(--fg); text-decoration: none;
+  cursor: pointer;
+}
+nav { display: flex; gap: 3px; justify-content: flex-end; }
+.nav-pill {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--fg); text-decoration: none; cursor: pointer;
+  padding: 5px 10px; border: 1px solid rgba(13,13,12,0.18); border-radius: 1px;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--fg); color: var(--bg); }
 
-  body {
-    background: var(--bg);
-    color: var(--fg);
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 300;
-    margin: 0;
-    padding: 0 48px;
-    min-height: 100vh;
-  }
+/* ── Pages ── */
+.page { display: none; }
+.page.visible { display: block; }
 
-  /* ── NAV ── */
-  nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 36px 0 36px;
-    border-bottom: 1px solid var(--line);
-    position: sticky;
-    top: 0;
-    background: var(--bg);
-    z-index: 100;
-  }
-  .nav-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.05rem;
-    letter-spacing: 0.18em;
-    color: var(--fg);
-    text-decoration: none;
-  }
-  .nav-links {
-    display: flex;
-    gap: 32px;
-    list-style: none;
-    margin: 0; padding: 0;
-  }
-  .nav-links a {
-    font-size: 0.68rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-decoration: none;
-    transition: color 0.2s;
-    cursor: pointer;
-  }
-  .nav-links a:hover,
-  .nav-links a.active { color: var(--fg); }
+/* ════════════════════════════════
+   STUDIO PAGE
+════════════════════════════════ */
+#page-studio .site-main {
+  margin-top: var(--h);
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  grid-template-columns: var(--lw) 1fr var(--rw);
+}
 
-  /* ── SECTION HEADER ── */
-  .section-label {
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 52px 0 0;
-    margin-bottom: 0;
-    border-top: none;
-  }
+/* Sticky panels */
+#page-studio .text-wrap,
+#page-studio .right-wrap {
+  position: sticky;
+  top: var(--h);
+  height: calc(100vh - var(--h));
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+#page-studio .text-wrap  { padding: 0 20px 0 24px; }
+#page-studio .right-wrap { padding: 0 24px 0 20px; }
 
-  /* ── PROJECT LIST ── */
-  .project-item {
-    border-bottom: 1px solid var(--line);
-    cursor: pointer;
-  }
-  .project-item.hidden { display: none; }
+.text-panel, .right-panel {
+  pointer-events: auto;
+  opacity: 1;
+  transition: opacity 0.22s ease;
+}
 
-  .project-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    padding: 20px 0 16px;
-    user-select: none;
-    position: relative;
-  }
+.t-num {
+  font-size: 10px; color: var(--mid);
+  font-variant-numeric: tabular-nums; letter-spacing: 0.05em;
+  margin-bottom: 12px; display: block;
+}
+.t-label {
+  font-size: 8px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--mid); display: block; margin-bottom: 3px;
+}
+.t-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px; letter-spacing: 0.03em; line-height: 1.05;
+  margin-bottom: 12px;
+}
+.t-tags { margin-bottom: 16px; }
+.t-tag {
+  display: block; font-size: 8px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--mid); line-height: 2.0;
+}
+.t-link {
+  display: inline-flex; align-items: center;
+  font-size: 9px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--fg); text-decoration: none;
+  padding: 5px 10px; border: 1px solid var(--fg); border-radius: 1px;
+  transition: background 0.15s, color 0.15s;
+}
+.t-link:hover { background: var(--fg); color: var(--bg); }
+.t-link svg {
+  width: 8px; height: 8px; margin-left: 6px;
+  stroke: currentColor; fill: none; stroke-width: 1.5;
+}
 
-  .project-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(2.8rem, 7.5vw, 8rem);
-    line-height: 0.93;
-    letter-spacing: 0.015em;
-    color: var(--fg);
-    transition: opacity 0.12s;
-    text-align: center;
-  }
-  .project-item:hover .project-title { opacity: 0.7; }
-  .project-item.open .project-title { opacity: 1; }
+/* Images area */
+.images-area {
+  padding: 0;
+  padding-top:    calc((100vh - var(--h) - var(--img-h)) / 2);
+  padding-bottom: calc((100vh - var(--h) - var(--img-h)) / 2);
+}
 
-  .project-meta {
-    font-size: 0.65rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-align: right;
-    line-height: 1.8;
-    position: absolute;
-    right: 0;
-    bottom: 16px;
-  }
+.project-images {
+  display: flex;
+  gap: 8px;
+  margin-bottom: var(--row-gap);
+  opacity: 0.1;
+  transition: opacity 0.5s ease;
+}
+.project-images:last-child { margin-bottom: 0; }
 
-  /* ── TITLE OVER IMAGE ── */
-  .project-item.open .project-header {
-    position: relative;
-    z-index: 2;
-    margin-bottom: -4.5rem;
-    background: transparent;
-  }
-  .project-item.open .project-body {
-    position: relative;
-    z-index: 1;
-  }
-  .project-item.open .project-title {
-    text-shadow: 0 2px 28px rgba(0,0,0,0.95), 0 0 60px rgba(0,0,0,0.7);
-  }
+/* Active row: synlig, ingen boks */
+.project-images.active { opacity: 1; }
 
-  /* ── ABOUT ── */
-  #about-section {
-    padding: 72px 0 80px;
-  }
-  .about-content {
-    max-width: 560px;
-  }
-  .about-content h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(3rem, 8vw, 7rem);
-    line-height: 0.93;
-    letter-spacing: 0.015em;
-    color: var(--fg);
-    margin: 0 0 48px;
-  }
-  .about-content p {
-    font-size: 0.9rem;
-    line-height: 1.85;
-    color: var(--fg);
-    margin: 0 0 16px;
-  }
-  .about-content a {
-    color: var(--fg);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
+/* Sort boks + invertert tekst — kun ved hover */
+.project-images.active:hover {
+  background: var(--fg);
+  padding: 12px calc(var(--rw) + 12px) 12px calc(var(--lw) + 12px);
+  gap: 8px;
+  margin-left: calc(-1 * var(--lw));
+  width: calc(100% + var(--lw) + var(--rw));
+}
+.site-main.row-hover .text-panel,
+.site-main.row-hover .right-panel { color: var(--bg); }
+.site-main.row-hover .t-num,
+.site-main.row-hover .t-label,
+.site-main.row-hover .t-tag { color: rgba(245,243,239,0.55); }
+.site-main.row-hover .t-link { color: var(--bg); border-color: rgba(245,243,239,0.4); }
+.site-main.row-hover .t-link:hover { background: var(--bg); color: var(--fg); }
 
-  /* ── EXPAND ── */
-  .project-body {
-    display: none;
-    padding: 0 0 60px;
-  }
-  .project-item.open .project-body {
-    display: grid;
-    grid-template-columns: 340px 1fr;
-    gap: 64px;
-    align-items: start;
-  }
+.img-block {
+  width:  var(--img-w);
+  height: var(--img-h);
+  flex-shrink: 0;
+  background: var(--img-color, #ccc);
+}
 
-  .project-text h2 {
-    font-size: 0.58rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 0 0 18px;
-    font-weight: 400;
-  }
-  .project-text p {
-    font-size: 0.88rem;
-    line-height: 1.8;
-    color: var(--fg);
-    margin: 0 0 14px;
-  }
-  .project-text .tags {
-    display: flex; flex-wrap: wrap; gap: 6px;
-    margin-top: 28px;
-  }
-  .project-text .tag {
-    font-size: 0.58rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border: 1px solid var(--line);
-    padding: 3px 9px;
-    color: var(--muted);
-  }
+/* ════════════════════════════════
+   ARBEID PAGE
+════════════════════════════════ */
+#page-arbeid {
+  margin-top: var(--h);
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 48px 28px 80px;
+}
+.arbeid-header { margin-bottom: 36px; }
+.arbeid-header h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(32px, 4vw, 52px);
+  letter-spacing: 0.04em; line-height: 1; margin-bottom: 8px;
+}
+.arbeid-header p { font-size: 11px; color: var(--mid); }
 
-  .project-images {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-  }
-  .project-images img {
-    width: 100%;
-    aspect-ratio: 4/3;
-    object-fit: cover;
-    display: block;
-    filter: brightness(0.94);
-    transition: filter 0.3s;
-  }
-  .project-images img:hover { filter: brightness(1.08); }
-  .project-images img.span2 {
-    grid-column: span 2;
-    aspect-ratio: 16/7;
-  }
-  .project-images img.port {
-    aspect-ratio: 3/4;
-  }
+/* Table */
+.ai-table { width: 100%; }
+.ai-thead {
+  display: grid;
+  grid-template-columns: 56px 1fr 1fr 160px 60px;
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--line);
+}
+.ai-thead span {
+  font-size: 8px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--mid);
+}
+.ai-thead span:last-child { text-align: right; }
 
-  /* ── HOVER PREVIEW ── */
-  #preview {
-    position: fixed;
-    pointer-events: none;
-    z-index: 500;
-    opacity: 0;
-    transition: opacity 0.22s ease;
-    width: clamp(280px, 28vw, 440px);
-  }
-  #preview img {
-    width: 100%;
-    display: block;
-    max-width: 100%;
-  }
-  #preview.on { opacity: 1; }
+.ai-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 1fr 160px 60px;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  text-decoration: none; color: var(--fg);
+}
+.ai-row:hover {
+  background: var(--fg); color: var(--bg);
+  padding-left: 0; margin: 0 -28px;
+  padding-left: 28px; padding-right: 28px;
+}
+.ai-row:hover .ai-cat { color: var(--bg); }
 
-  /* ── FOOTER ── */
-  footer {
-    padding: 72px 0 40px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
+.ai-num {
+  font-size: 10px; color: var(--mid);
+  font-variant-numeric: tabular-nums; letter-spacing: 0.04em;
+}
+.ai-row:hover .ai-num { color: rgba(245,243,239,0.5); }
+.ai-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px; letter-spacing: 0.03em;
+}
+.ai-cat {
+  font-size: 8px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--mid); display: flex; gap: 10px; flex-wrap: wrap;
+}
+.ai-client { font-size: 12px; }
+.ai-year {
+  font-size: 10px; text-align: right;
+  font-variant-numeric: tabular-nums;
+}
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 800px) {
-    body { padding: 0 20px; }
-    nav { padding: 24px 0; }
-    .project-item.open .project-body {
-      grid-template-columns: 1fr;
-      gap: 36px;
-    }
-    #preview { display: none; }
-    .project-title { font-size: clamp(2.2rem, 12vw, 5rem); }
-  }
-  @media (max-width: 500px) {
-    .nav-links { gap: 16px; }
-    .project-images { grid-template-columns: 1fr; }
-    .project-images img.span2 { grid-column: span 1; aspect-ratio: 4/3; }
-  }
+/* ════════════════════════════════
+   KONTAKT PAGE
+════════════════════════════════ */
+#page-kontakt {
+  margin-top: var(--h);
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 60px 28px 80px;
+  align-items: start;
+}
+#page-kontakt.visible {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+}
+.k-headline {
+  font-size: clamp(18px, 2.4vw, 28px);
+  line-height: 1.3; font-weight: 400;
+  margin-bottom: 28px;
+}
+.k-body {
+  font-size: 12px; line-height: 1.85;
+  color: var(--mid); margin-bottom: 20px;
+}
+.k-label {
+  font-size: 8px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--mid); margin-bottom: 7px; display: block;
+}
+.k-expertise { font-size: 12px; margin-bottom: 40px; color: var(--fg); }
+.k-contact { margin-top: 48px; }
+.k-contact a, .k-contact p {
+  font-size: 13px; color: var(--fg);
+  text-decoration: none; display: block; line-height: 1.9;
+}
+.k-contact a:hover { color: var(--mid); }
+.k-contact-block { margin-bottom: 24px; }
+
+.k-section { margin-bottom: 44px; }
+.k-section-title {
+  font-size: 8px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--mid); display: block; margin-bottom: 14px;
+}
+.k-assoc-row {
+  display: grid; grid-template-columns: 120px 1fr;
+  gap: 16px; align-items: baseline;
+  padding: 10px 0; border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+.k-assoc-name { font-size: 13px; }
+.k-assoc-role { font-size: 10px; color: var(--mid); }
+.k-award-row { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.k-award-name { font-size: 12px; margin-bottom: 2px; }
+.k-award-meta { font-size: 10px; color: var(--mid); }
+.k-client-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  column-gap: 20px;
+}
+.k-client {
+  font-size: 12px; padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.k-bottom {
+  grid-column: 1 / -1;
+  font-size: 10px; color: var(--mid);
+  padding-top: 40px; border-top: 1px solid var(--line);
+}
+
+/* ── Badge ── */
+.mockup-badge {
+  position: fixed; bottom: 18px; right: 18px;
+  background: var(--fg); color: var(--bg);
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 5px 11px; border-radius: 2px;
+  z-index: 999; opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
-<div id="preview"><img src="" alt=""></div>
+<!-- ── HEADER ── -->
+<header>
+  <div class="hdr-left"></div>
+  <a class="wordmark" data-page="studio">ATELIER WINTHER</a>
+  <nav>
+    <a class="nav-pill" data-page="studio">Studio</a>
+    <a class="nav-pill" data-page="arbeid">Arbeid</a>
+    <a class="nav-pill" data-page="kontakt">Kontakt</a>
+  </nav>
+</header>
 
-<nav>
-  <a class="nav-logo" href="#">AW</a>
-  <ul class="nav-links">
-    <li><a data-filter="all" class="active">All</a></li>
-    <li><a data-filter="architecture">Architecture</a></li>
-    <li><a data-filter="design">Design</a></li>
-    <li><a data-filter="about">About</a></li>
-  </ul>
-</nav>
+<!-- ══ STUDIO PAGE ══ -->
+<div id="page-studio" class="page visible">
+  <main class="site-main">
+    <div class="text-wrap">
+      <div class="text-panel" id="text-panel"></div>
+    </div>
+    <div class="images-area" id="images-area"></div>
+    <div class="right-wrap">
+      <div class="right-panel" id="right-panel"></div>
+    </div>
+  </main>
+</div>
 
-<main>
-
-<!-- ══════════════ ARCHITECTURE ══════════════ -->
-<p class="section-label" data-section="architecture">Architecture</p>
-
-<div class="project-item" data-cat="architecture"
-  data-cover="img/633774a6-c426-43c8-aa2c-40cc689f252e-labbet-app-edited.jpg">
-  <div class="project-header">
-    <span class="project-title">Stall Søndre</span>
-    <div class="project-meta">Oslo<br>2026</div>
+<!-- ══ ARBEID PAGE ══ -->
+<div id="page-arbeid" class="page">
+  <div class="arbeid-header">
+    <h1>Arbeid</h1>
   </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Project</h2>
-      <p>Conversion of an existing stable building at Søndre farm.</p>
-      <div class="tags"><span class="tag">Conversion</span><span class="tag">Oslo</span></div>
+  <div class="ai-table">
+    <div class="ai-thead">
+      <span>#</span>
+      <span>Prosjekttittel</span>
+      <span>Kategori</span>
+      <span>Klient</span>
+      <span style="text-align:right">År</span>
     </div>
-    <div class="project-images">
-    </div>
+    <div id="arbeid-list"></div>
   </div>
 </div>
 
-<div class="project-item" data-cat="architecture"
-  data-cover="img/aw_08958.jpg">
-  <div class="project-header">
-    <span class="project-title">Tabuno</span>
-    <div class="project-meta">Architecture<br>2026</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Project</h2>
-      <p></p>
-      <div class="tags"><span class="tag">Architecture</span></div>
+<!-- ══ KONTAKT PAGE ══ -->
+<div id="page-kontakt" class="page">
+
+  <!-- Venstre kolonne -->
+  <div class="k-left">
+    <p class="k-headline">Arkitekt og designer med base i Oslo. Utdannet fra Arkitektur- og designhøgskolen i Oslo (AHO), 2025.</p>
+    <p class="k-body">Severin Kokaas Winther arbeider i skjæringspunktet mellom arkitektur, landskap og håndverk — på tvers av romlige prosjekter, konkurranser, møbler og objekter.</p>
+
+    <div style="margin-bottom:36px">
+      <span class="k-label">Ekspertise</span>
+      <p class="k-expertise">Arkitektur,&nbsp; Design,&nbsp; Systemdesign,&nbsp; Visuell identitet</p>
     </div>
-    <div class="project-images">
-      <img src="img/aw_08907.jpg" alt="">
-      <img src="img/aw_08861.jpg" alt="">
-      <img src="img/2.0_side_16-edited.jpg" alt="">
+
+    <div class="k-contact">
+      <div class="k-contact-block">
+        <span class="k-label">E-post</span>
+        <a href="mailto:severin@atelierwinther.com">severin@atelierwinther.com</a>
+      </div>
+      <div class="k-contact-block">
+        <span class="k-label">Telefon</span>
+        <a href="tel:+4795944390">+47 959 44 390</a>
+      </div>
+      <div class="k-contact-block">
+        <span class="k-label">Adresse</span>
+        <p>Professor Dahls gate 7A</p>
+        <p>0355 Oslo</p>
+      </div>
     </div>
   </div>
+
+  <!-- Høyre kolonne -->
+  <div class="k-right">
+    <div class="k-section">
+      <span class="k-section-title">Tilknyttede byråer</span>
+      <div class="k-assoc-row">
+        <span class="k-assoc-name">WH Form</span>
+        <span class="k-assoc-role">Gravsteiner &middot; med Brage Leirvik Hofgaard</span>
+      </div>
+      <div class="k-assoc-row">
+        <span class="k-assoc-name">Randfals</span>
+        <span class="k-assoc-role">Møbler, design og arkitektur &middot; med Brage Leirvik Hofgaard</span>
+      </div>
+    </div>
+
+    <div class="k-section">
+      <span class="k-section-title">Priser og omtale</span>
+      <div class="k-award-row">
+        <div class="k-award-name">Statsbyggprisen, finalist</div>
+        <div class="k-award-meta">AHO Awards &middot; Handle With Care (2026)</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="k-bottom">&copy; 2025 Atelier Winther</div>
 </div>
 
-<div class="project-item" data-cat="architecture"
-  data-cover="img/aaf3c-dsc_3519-ferdig-edited.jpg">
-  <div class="project-header">
-    <span class="project-title">MAXXI Museum</span>
-    <div class="project-meta">Rome<br>Competition</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Project</h2>
-      <p>Model for Resell+Nicca, awarded 3rd place in competition for extension to the Zaha Hadid MAXXI Museum in Rome. Photos by Resell+Nicca.</p>
-      <div class="tags"><span class="tag">Competition</span><span class="tag">Rome</span><span class="tag">Model</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/dsc_3437-ferdig-edited.jpg" alt="">
-      <img src="img/dsc_3447-ferdig-edited.jpg" alt="">
-      <img src="img/dsc_3492-ferdig-edited.jpg" alt="">
-      <img src="img/dsc_3519-ferdig-edited.jpg" alt="">
-      <img src="img/7e801-binder1.pdf_side_06.webp" alt="">
-      <img src="img/5d9ea-binder1.pdf_side_19.webp" alt="">
-      <img src="img/480d9-binder1.pdf_side_08.webp" alt="">
-      <img src="img/bfb6a-binder1.pdf_side_13.webp" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="architecture"
-  data-cover="img/a97a6-img_2064.webp">
-  <div class="project-header">
-    <span class="project-title">Critical Mass: Under Pressure</span>
-    <div class="project-meta">AHO<br>Studio</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Project</h2>
-      <p>Surplus masses are excavated, unused masses from a construction site. These masses consist of soil and stone material that are reused and given new meaning.</p>
-      <div class="tags"><span class="tag">Landscape</span><span class="tag">AHO</span><span class="tag">Circular</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/cm-01.jpg" alt="">
-      <img src="img/cm-02.jpg" alt="">
-      <img src="img/cm-03.jpg" alt="">
-      <img src="img/cm-04.jpg" alt="">
-      <img src="img/cm-05.jpg" alt="">
-      <img src="img/cm-06.jpg" alt="">
-      <img src="img/cm-07.jpg" alt="">
-      <img src="img/cm-08.jpg" alt="">
-      <img src="img/cm-09.jpg" alt="">
-      <img src="img/cm-10.jpg" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="architecture"
-  data-cover="img/aw_03523.jpg">
-  <div class="project-header">
-    <span class="project-title">Cultura+ AHO Landscape Lab</span>
-    <div class="project-meta">AHO Oslo<br>2025</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Project</h2>
-      <p>AHO Urban LandLAB; a tool storage and work station supporting educational activities in AHO's Landscape Lab. Built as part of the Circular Prototyping studio.</p>
-      <div class="tags"><span class="tag">Pavilion</span><span class="tag">AHO</span><span class="tag">Circular</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/lw-01.jpg" alt="">
-      <img src="img/lw-02.jpg" alt="">
-      <img src="img/lw-03.jpg" alt="">
-      <img src="img/lw-04.jpg" alt="">
-      <img src="img/lw-05.jpg" alt="">
-      <img src="img/lw-06.jpg" alt="">
-      <img src="img/lw-07.jpg" alt="">
-      <img src="img/lw-08.jpg" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="architecture"
-  data-cover="img/aw_08592-edited.jpg">
-  <div class="project-header">
-    <span class="project-title">Pavilion Assembly</span>
-    <div class="project-meta">AHO<br>2025</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Project</h2>
-      <p>Assembly and construction of the Cultura+ pavilion system, developed through the Circular Prototyping studio at the Oslo School of Architecture and Design.</p>
-      <div class="tags"><span class="tag">Pavilion</span><span class="tag">Construction</span><span class="tag">AHO</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/lw-04.jpg" alt="">
-      <img src="img/aw_08592-edited.jpg" alt="">
-      <img src="img/aw_08655-edited.jpg" alt="">
-      <img src="img/aw_08724-edited.jpg" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="architecture"
-  data-cover="img/250226_lysthus_assembly-manual_side_01.jpg">
-  <div class="project-header">
-    <span class="project-title">Pavilion Assembly Manual</span>
-    <div class="project-meta">AHO<br>2025</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Document</h2>
-      <p>Assembly manual for the Cultura+ circular pavilion system.</p>
-      <div class="tags"><span class="tag">Manual</span><span class="tag">Circular</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/250226_lysthus_assembly-manual_side_01.jpg" alt="" class="span2">
-      <img src="img/250226_lysthus_assembly-manual_side_24.jpg" alt="">
-      <img src="img/250226_lysthus_assembly-manual_side_53.jpg" alt="">
-      <img src="img/lw-09.jpg" alt="">
-      <img src="img/lw-10.jpg" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="architecture"
-  data-cover="img/160b1-aw_08656.webp">
-  <div class="project-header">
-    <span class="project-title">Cultura+ Ultima Music Festival</span>
-    <div class="project-meta">Oslo<br>2024</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Project</h2>
-      <p>Ultima Sonic Shack; a music performance pavilion created for Ultima – Oslo Contemporary Music Festival, in collaboration with students from NMH.</p>
-      <div class="tags"><span class="tag">Pavilion</span><span class="tag">Ultima</span><span class="tag">Music</span><span class="tag">Oslo</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/cu-01.jpg" alt="">
-      <img src="img/cu-02.jpg" alt="">
-      <img src="img/cu-03.jpg" alt="">
-      <img src="img/cu-04.jpg" alt="">
-      <img src="img/cu-05.jpg" alt="">
-      <img src="img/cu-06.jpg" alt="">
-      <img src="img/cu-07.jpg" alt="">
-      <img src="img/cu-08.jpg" alt="">
-      <img src="img/cu-09.jpg" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="architecture"
-  data-cover="img/3b_cultura_assembly_print_side_01.jpg">
-  <div class="project-header">
-    <span class="project-title">Cultura+ Assembly Manual</span>
-    <div class="project-meta">AHO<br>2024</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Document</h2>
-      <p>Created by the Circular Prototyping studio at the Oslo School of Architecture and Design (AHO), Cultura+ is a circular construction system designed for reuse.</p>
-      <div class="tags"><span class="tag">Manual</span><span class="tag">Circular</span><span class="tag">AHO</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/cu-manual-s1.jpg" alt="" class="span2">
-      <img src="img/cu-manual-s3.jpg" alt="">
-      <img src="img/cu-manual-s8.jpg" alt="">
-      <img src="img/cu-manual-s19.jpg" alt="">
-      <img src="img/cu-manual-s22.jpg" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="architecture"
-  data-cover="img/279e4-collage-edited.webp">
-  <div class="project-header">
-    <span class="project-title">Handle with Care</span>
-    <div class="project-meta">Diploma Fall 2025<br>AHO Oslo</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Diploma Project</h2>
-      <p>For decades, Oslo has relied on temporary, modular units to meet kindergarten capacity demands. These modules are now vacant — obsolete structures awaiting demolition.</p>
-      <p>This diploma argues that these vacant buildings could hold potential of becoming meaningful alternatives: community kindergartens that are rooted in place rather than interchangeable. The project transforms a 1968 wardrobe pavilion at Ekeberg into a kindergarten for Atriet Barnehage.</p>
-      <div class="tags"><span class="tag">Adaptive Reuse</span><span class="tag">Kindergarten</span><span class="tag">Ekeberg</span><span class="tag">Diploma</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/hwc-01.jpg" alt="" class="span2">
-      <img src="img/hwc-02.jpg" alt="">
-      <img src="img/hwc-03.jpg" alt="">
-      <img src="img/hwc-04.jpg" alt="">
-      <img src="img/hwc-s1.jpg" alt="" class="span2">
-      <img src="img/hwc-s11.jpg" alt="">
-      <img src="img/hwc-s17.jpg" alt="">
-      <img src="img/hwc-s29.jpg" alt="">
-      <img src="img/hwc-s33.jpg" alt="">
-      <img src="img/hwc-s45.jpg" alt="">
-      <img src="img/hwc-s47.jpg" alt="">
-      <img src="img/hwc-s49.jpg" alt="">
-      <img src="img/hwc-s51.jpg" alt="">
-      <img src="img/hwc-s52.jpg" alt="">
-      <img src="img/hwc-s55.jpg" alt="">
-      <img src="img/hwc-s56.jpg" alt="">
-      <img src="img/hwc-pres-s1.jpg" alt="" class="span2">
-      <img src="img/hwc-pres-s20.jpg" alt="">
-      <img src="img/hwc-pres-s77.jpg" alt="">
-      <img src="img/hwc-synopsis.jpg" alt="" class="span2">
-    </div>
-  </div>
-</div>
-
-
-<!-- ══════════════ DESIGN ══════════════ -->
-<p class="section-label" data-section="design">Design</p>
-
-<div class="project-item" data-cat="design"
-  data-cover="img/10442-img_5009.webp">
-  <div class="project-header">
-    <span class="project-title">Contour</span>
-    <div class="project-meta">Kristiansand<br>2025</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Design</h2>
-      <p>The Concrete Sculpture for Wilds Minne School in Kristiansand — a 3D-printed concrete sculpture drawn from the contours of the site's surrounding landscape.</p>
-      <div class="tags"><span class="tag">Sculpture</span><span class="tag">Concrete</span><span class="tag">3D Print</span><span class="tag">Public</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/10442-img_5009.webp" alt="">
-      <img src="img/d3022-img_5022.webp" alt="">
-      <img src="img/64d9a-wms_side.webp" alt="">
-      <img src="img/d4bd9-wms_detalj.webp" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="design"
-  data-cover="img/img_5125-edited.png">
-  <div class="project-header">
-    <span class="project-title">Display Table</span>
-    <div class="project-meta">2022<br>Plywood + Glass</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Furniture</h2>
-      <p>2022 — Plywood and glass display table.</p>
-      <div class="tags"><span class="tag">Furniture</span><span class="tag">Plywood</span><span class="tag">Glass</span><span class="tag">2022</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/img_5125-edited.png" alt="">
-      <img src="img/img_5253-edited.png" alt="">
-      <img src="img/img_5258-edited-1.png" alt="">
-      <img src="img/5454f-img_5021-edited.webp" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="design"
-  data-cover="img/aw_03609-edited.jpg">
-  <div class="project-header">
-    <span class="project-title">Tile Table</span>
-    <div class="project-meta">2025<br>Plywood + Carrara</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Furniture</h2>
-      <p>2025 — Plywood and Carrara marble tile table.</p>
-      <div class="tags"><span class="tag">Furniture</span><span class="tag">Plywood</span><span class="tag">Marble</span><span class="tag">2025</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/aw_03609-edited.jpg" alt="">
-      <img src="img/aw_03611-edited.jpg" alt="">
-      <img src="img/aw_03614-edited.jpg" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="design"
-  data-cover="img/img_2485-1-edited.jpg">
-  <div class="project-header">
-    <span class="project-title">Engagement Ring</span>
-    <div class="project-meta">2024<br>Sigurd Shaba</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Jewellery</h2>
-      <p>2024 — Designed and shaped by hand, cast by goldsmith Sigurd Shaba.</p>
-      <div class="tags"><span class="tag">Jewellery</span><span class="tag">Handmade</span><span class="tag">2024</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/img_2485-1-edited.jpg" alt="" class="span2">
-      <img src="img/aw-6a3d17f99f641-edited.png" alt="">
-      <img src="img/chatgpt-image-25.-juni-2026-14_01_02-edited.png" alt="">
-    </div>
-  </div>
-</div>
-
-<div class="project-item" data-cat="design"
-  data-cover="img/img_4113.jpg">
-  <div class="project-header">
-    <span class="project-title">Serve Table</span>
-    <div class="project-meta">2025<br>Made to Order</div>
-  </div>
-  <div class="project-body">
-    <div class="project-text">
-      <h2>Furniture</h2>
-      <p>2025 — Plywood in four parts. Made to order.</p>
-      <div class="tags"><span class="tag">Furniture</span><span class="tag">Plywood</span><span class="tag">Bespoke</span><span class="tag">2025</span></div>
-    </div>
-    <div class="project-images">
-      <img src="img/img_4113.jpg" alt="">
-      <img src="img/img_4112.jpg" alt="">
-      <img src="img/img_4107.jpg" alt="">
-    </div>
-  </div>
-</div>
-
-
-
-<section id="about-section" style="display:none">
-  <div class="about-content">
-    <h1>Severin Kokaas Winther</h1>
-    <p>Architect and designer based in Oslo. Graduate of the Oslo School of Architecture and Design (AHO), 2025.</p>
-    <p>Working at the intersection of architecture, landscape, and craft — from spatial projects and competitions to furniture and objects.</p>
-    <p><a href="mailto:severin@atelierwinther.com">severin@atelierwinther.com</a></p>
-  </div>
-</section>
-
-</main>
-
-<footer>
-  <span>Severin Kokaas Winther</span>
-  <span>Atelier Winther · Oslo</span>
-</footer>
+<div class="mockup-badge">Konsept / Mockup</div>
 
 <script>
-  // ── Hover preview ──
-  const preview = document.getElementById('preview');
-  const previewImg = preview.querySelector('img');
-  let mx = 0, my = 0, raf;
+/* ── Shared project data ── */
+const PROJECTS = [
+  { num: '001', title: 'Critical Mass',
+    tags: ['IDENTITET', 'BRANDING'], client: 'Critical Mass', year: '2024',
+    colors: ['#2A2825', '#3D3A36', '#1E1C1A', '#4A4540'], link: '#' },
+  { num: '002', title: 'Cultura+ Ultima',
+    tags: ['IDENTITET', 'FESTIVAL'], client: 'Ultima', year: '2024',
+    colors: ['#C2BEB8', '#A8A49E'], link: '#' },
+  { num: '003', title: 'AHO Landscape Lab',
+    tags: ['IDENTITET', 'TRYKK'], client: 'AHO', year: '2023',
+    colors: ['#7A8A70', '#8A9A80', '#6A7A62'], link: '#' },
+  { num: '004', title: 'Pavilion Assembly',
+    tags: ['ARKITEKTUR', 'PUBLIKASJON'], client: 'Pavilion', year: '2023',
+    colors: ['#E8E4DE', '#D8D4CE', '#CCC8C2'], link: '#' },
+  { num: '005', title: 'Handle with Care',
+    tags: ['BRANDING', 'FILM'], client: 'Handle with Care', year: '2022',
+    colors: ['#E0D8CE', '#C8C0B6', '#D4CCB2', '#B8B0A6'], link: '#' }
+];
 
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+/* ── Page routing ── */
+let currentPage = 'studio';
 
-  function trackPreview() {
-    const w = preview.offsetWidth || 340;
-    const h = preview.offsetHeight || 260;
-    let x = mx + 30, y = my - h / 2;
-    if (x + w > window.innerWidth - 16) x = mx - w - 30;
-    if (y < 16) y = 16;
-    if (y + h > window.innerHeight - 16) y = window.innerHeight - h - 16;
-    preview.style.left = x + 'px';
-    preview.style.top  = y + 'px';
-    raf = requestAnimationFrame(trackPreview);
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('visible'));
+  document.getElementById('page-' + id).classList.add('visible');
+  document.querySelectorAll('.nav-pill').forEach(a => {
+    a.classList.toggle('active', a.dataset.page === id);
+  });
+  currentPage = id;
+  if (id === 'studio') {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    setTimeout(() => studioInit(), 50);
+  } else {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+}
+
+document.querySelectorAll('[data-page]').forEach(el => {
+  el.addEventListener('click', e => { e.preventDefault(); showPage(el.dataset.page); });
+});
+
+/* ════════════════════════════════
+   STUDIO PAGE LOGIC
+════════════════════════════════ */
+(function () {
+  const N        = PROJECTS.length;
+  const area     = document.getElementById('images-area');
+  const panel    = document.getElementById('text-panel');
+  const rpanel   = document.getElementById('right-panel');
+  const HEADER_H = 56;
+  const DURATION = 820;
+
+  /* build rows ×3 */
+  function makeRow(p) {
+    const row = document.createElement('div');
+    row.className = 'project-images';
+    p.colors.forEach(c => {
+      const b = document.createElement('div');
+      b.className = 'img-block';
+      b.style.setProperty('--img-color', c);
+      row.appendChild(b);
+    });
+    return row;
   }
 
-  document.querySelectorAll('.project-item').forEach(item => {
-    const cover = item.dataset.cover;
+  const allRows = [];
+  for (let set = 0; set < 3; set++)
+    for (let i = 0; i < N; i++) {
+      const row = makeRow(PROJECTS[i]);
+      area.appendChild(row);
+      allRows.push(row);
+    }
 
-    item.querySelector('.project-header').addEventListener('mouseenter', () => {
-      if (!cover || item.classList.contains('open')) return;
-      previewImg.src = cover;
-      preview.classList.add('on');
-      raf = requestAnimationFrame(trackPreview);
-    });
+  let activeIdx = -1, animating = false, fadeTimer = null;
+  let wheelAccum = 0, touchStartY = 0;
 
-    item.querySelector('.project-header').addEventListener('mouseleave', () => {
-      preview.classList.remove('on');
-      cancelAnimationFrame(raf);
-    });
+  function setPanel(p) {
+    panel.style.opacity = '0';
+    rpanel.style.opacity = '0';
+    clearTimeout(fadeTimer);
+    fadeTimer = setTimeout(() => {
+      panel.innerHTML =
+        `<span class="t-num">${p.num}</span>` +
+        `<span class="t-label">Prosjekttittel</span>` +
+        `<h2 class="t-title">${p.title}</h2>`;
+      rpanel.innerHTML =
+        `<div><span class="t-label">Info</span>` +
+        `<div class="t-tags">${p.tags.map(t=>`<span class="t-tag">${t}</span>`).join('')}</div>` +
+        `<a class="t-link" href="${p.link}">Se prosjekt ` +
+        `<svg viewBox="0 0 10 10"><path d="M1 9L9 1M9 1H3M9 1v6"/></svg></a></div>`;
+      panel.style.opacity = '1';
+      rpanel.style.opacity = '1';
+    }, 180);
+  }
 
-    item.querySelector('.project-header').addEventListener('click', () => {
-      const wasOpen = item.classList.contains('open');
-      document.querySelectorAll('.project-item.open').forEach(o => o.classList.remove('open'));
-      preview.classList.remove('on');
-      cancelAnimationFrame(raf);
-      if (!wasOpen) item.classList.add('open');
-    });
-  });
+  function easeInOutQuart(t) {
+    return t < 0.5 ? 8*t*t*t*t : 1 - Math.pow(-2*t+2,4)/2;
+  }
 
-  // ── Category filter ──
-  const labels = document.querySelectorAll('.section-label');
+  function smoothScrollTo(target, cb) {
+    const start = window.scrollY, diff = target - start, t0 = performance.now();
+    function step(now) {
+      const t = Math.min((now - t0) / DURATION, 1);
+      window.scrollTo({ top: start + diff * easeInOutQuart(t), behavior: 'instant' });
+      if (t < 1) requestAnimationFrame(step); else cb && cb();
+    }
+    requestAnimationFrame(step);
+  }
 
-  document.querySelectorAll('.nav-links a[data-filter]').forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      const f = link.dataset.filter;
-      document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-      link.classList.add('active');
+  function rowCenter(row) {
+    const r = row.getBoundingClientRect();
+    return window.scrollY + r.top + r.height / 2;
+  }
 
-      const aboutSection = document.getElementById('about-section');
+  function oneSetHeight() {
+    const r1 = allRows[N], r2 = allRows[N * 2 - 1];
+    return r2.getBoundingClientRect().bottom - r1.getBoundingClientRect().top + 10;
+  }
 
-      if (f === 'about') {
-        document.querySelectorAll('.project-item').forEach(item => {
-          item.classList.remove('open');
-          item.classList.add('hidden');
-        });
-        labels.forEach(lbl => { lbl.style.display = 'none'; });
-        aboutSection.style.display = '';
-        return;
+  function goTo(idx) {
+    if (animating) return;
+    animating = true;
+    if (activeIdx >= 0) allRows[activeIdx].classList.remove('active');
+    allRows[idx].classList.add('active');
+    activeIdx = idx;
+    setPanel(PROJECTS[idx % N]);
+
+    const viewMid = (window.innerHeight + HEADER_H) / 2;
+    smoothScrollTo(rowCenter(allRows[idx]) - viewMid, () => {
+      const setH = oneSetHeight();
+      if (activeIdx < N) {
+        window.scrollTo({ top: window.scrollY + setH, behavior: 'instant' });
+        allRows[activeIdx].classList.remove('active');
+        allRows[activeIdx + N].classList.add('active');
+        activeIdx += N;
+      } else if (activeIdx >= N * 2) {
+        window.scrollTo({ top: window.scrollY - setH, behavior: 'instant' });
+        allRows[activeIdx].classList.remove('active');
+        allRows[activeIdx - N].classList.add('active');
+        activeIdx -= N;
       }
-
-      aboutSection.style.display = 'none';
-
-      document.querySelectorAll('.project-item').forEach(item => {
-        item.classList.remove('open');
-        item.classList.toggle('hidden', f !== 'all' && item.dataset.cat !== f);
-      });
-
-      labels.forEach(lbl => {
-        const sec = lbl.dataset.section;
-        lbl.style.display = (f === 'all' || f === sec) ? '' : 'none';
-      });
+      animating = false;
     });
+  }
+
+  window.addEventListener('wheel', e => {
+    if (currentPage !== 'studio') return;
+    e.preventDefault();
+    if (animating) return;
+    wheelAccum += e.deltaY;
+    if (Math.abs(wheelAccum) >= 60) {
+      const dir = wheelAccum > 0 ? 1 : -1;
+      wheelAccum = 0;
+      let next = activeIdx + dir;
+      if (next < 0) next = allRows.length - 1;
+      if (next >= allRows.length) next = 0;
+      goTo(next);
+    }
+  }, { passive: false });
+
+  window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+  window.addEventListener('touchend', e => {
+    if (currentPage !== 'studio' || animating) return;
+    const dy = touchStartY - e.changedTouches[0].clientY;
+    if (Math.abs(dy) < 30) return;
+    const dir = dy > 0 ? 1 : -1;
+    let next = activeIdx + dir;
+    if (next < 0) next = allRows.length - 1;
+    if (next >= allRows.length) next = 0;
+    goTo(next);
+  }, { passive: true });
+
+  const mainEl = document.querySelector('#page-studio .site-main');
+
+  area.addEventListener('mouseover', e => {
+    if (e.target.closest('.project-images.active') && mainEl)
+      mainEl.classList.add('row-hover');
   });
+  area.addEventListener('mouseout', e => {
+    if (mainEl && !e.relatedTarget?.closest('.project-images.active'))
+      mainEl.classList.remove('row-hover');
+  });
+
+  window.studioInit = function () {
+    activeIdx = -1;
+    allRows.forEach(r => r.classList.remove('active'));
+    if (mainEl) mainEl.classList.remove('row-hover');
+    animating = false;
+    wheelAccum = 0;
+    goTo(N);
+  };
+
+  window.studioInit();
+})();
+
+/* ════════════════════════════════
+   ARBEID INDEX
+════════════════════════════════ */
+(function () {
+  const list = document.getElementById('arbeid-list');
+  PROJECTS.forEach(p => {
+    const row = document.createElement('a');
+    row.className = 'ai-row';
+    row.href = p.link;
+    row.innerHTML =
+      `<span class="ai-num">${p.num}</span>` +
+      `<span class="ai-title">${p.title}</span>` +
+      `<span class="ai-cat">${p.tags.map(t=>`<span>${t}</span>`).join('')}</span>` +
+      `<span class="ai-client">${p.client}</span>` +
+      `<span class="ai-year">${p.year}</span>`;
+    list.appendChild(row);
+  });
+})();
 </script>
