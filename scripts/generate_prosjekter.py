@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json, os, sys
+from urllib.parse import quote
 
 PROSJEKTER_DIR = "prosjekter"
 OUTPUT_FILE    = "prosjekter.json"
@@ -31,7 +32,7 @@ def scan():
             ext = os.path.splitext(fn)[1].lower()
             if ext not in IMAGE_EXTS:
                 continue
-            rel = f"{PROSJEKTER_DIR}/{folder}/{fn}"
+            rel = f"{PROSJEKTER_DIR}/{quote(folder)}/{quote(fn)}"
             if fn.lower().startswith("cover"):
                 cover = rel
             else:

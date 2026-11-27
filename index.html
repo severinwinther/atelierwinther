@@ -598,7 +598,7 @@ function initStudioPage() {
     list.forEach(imgSrc => {
       const b = document.createElement('div');
       b.className = 'img-block';
-      if (imgSrc) b.style.backgroundImage = `url(${imgSrc})`;
+      if (imgSrc) b.style.backgroundImage = `url('${imgSrc.replace(/'/g, "\\'")}')` ;
       row.appendChild(b);
     });
     return row;
