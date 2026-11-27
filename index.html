@@ -529,7 +529,12 @@ let PROJECTS = [];
 async function loadProjects() {
   try {
     const data = await fetch('prosjekter.json').then(r => r.json());
-    PROJECTS = data.map((p, i) => ({
+    const raw = [...data];
+    for (let i = raw.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [raw[i], raw[j]] = [raw[j], raw[i]];
+    }
+    PROJECTS = raw.map((p, i) => ({
       num:    String(i + 1).padStart(3, '0'),
       title:  p.tittel || p.id,
       tags:   [p.kategori ? p.kategori.toUpperCase() : 'PROSJEKT'],
