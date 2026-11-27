@@ -15,6 +15,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Komprimér store bilder automatisk
+        run: |
+          find prosjekter -type f \( -iname "*.jpg" -o -iname "*.jpeg" \) | while read img; do
+            size=$(stat -c%s "$img")
+            if [ "$size" -gt 1048576 ]; then
+              echo "Komprimerer: $img ($(du -h "$img" | cut -f1))"
+              convert "$img" -resize "2400x2400>" -quality 82 -strip "$img"
+              echo "  → $(du -h "$img" | cut -f1)"
+            fi
+          done
+
       - name: Generer prosjekter.json
         run: python3 scripts/generate_prosjekter.py
 
@@ -22,6 +33,6 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add prosjekter.json
+          git add prosjekter/ prosjekter.json
           git diff --cached --quiet && echo "Ingen endringer" || \
-            git commit -m "Auto: oppdater prosjekter.json [skip ci]" && git push
+            git commit -m "Auto: komprimér bilder + oppdater prosjekter.json [skip ci]" && git push
