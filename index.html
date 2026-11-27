@@ -187,9 +187,10 @@ nav { display: flex; gap: 3px; justify-content: flex-end; }
 
   .images-area { padding-left: 20px; padding-right: 20px; }
 
-  /* Viser tittel + år + pil fast under bildene på mobil */
+  /* Viser tittel + år + pil fast nederst på skjermen */
   .mobile-info {
     display: flex;
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
     align-items: baseline; gap: 10px;
     padding: 14px 20px env(safe-area-inset-bottom, 20px);
     border-top: 1px solid var(--line);
@@ -204,7 +205,13 @@ nav { display: flex; gap: 3px; justify-content: flex-end; }
     font-size: 10px; color: var(--mid); background: none;
     border: none; cursor: pointer; padding: 0;
   }
-  .info-strip.open { max-height: 120px; }
+  .info-strip {
+    position: fixed; bottom: 49px; left: 0; right: 0; z-index: 99;
+    background: var(--bg);
+    max-height: 0;
+    border-top: none;
+  }
+  .info-strip.open { max-height: 120px; border-top: 1px solid var(--line); }
   .info-strip-inner { padding: 12px 20px 8px; }
 }
 
