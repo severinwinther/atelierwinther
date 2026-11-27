@@ -578,21 +578,19 @@ function initStudioPage() {
   const DURATION = 820;
 
   /* bygg rader ×3 */
+  const isMobile = () => window.innerWidth <= 680;
+
   function makeRow(p) {
     const row = document.createElement('div');
     row.className = 'project-images';
-    if (p.images && p.images.length > 0) {
-      p.images.forEach(imgSrc => {
-        const b = document.createElement('div');
-        b.className = 'img-block';
-        b.style.backgroundImage = `url(${imgSrc})`;
-        row.appendChild(b);
-      });
-    } else {
+    const imgs = (p.images && p.images.length > 0) ? p.images : [null];
+    const list = isMobile() ? [imgs[0]] : imgs;
+    list.forEach(imgSrc => {
       const b = document.createElement('div');
       b.className = 'img-block';
+      if (imgSrc) b.style.backgroundImage = `url(${imgSrc})`;
       row.appendChild(b);
-    }
+    });
     return row;
   }
 
