@@ -1,8 +1,11 @@
 [
   {
     "id": "2026_Steinskulptur.no",
-    "cover": null,
-    "bilder": [],
+    "cover": "prosjekter/2026_Steinskulptur.no/01_steinskulptur_forside.png",
+    "bilder": [
+      "prosjekter/2026_Steinskulptur.no/01_steinskulptur_forside.png",
+      "prosjekter/2026_Steinskulptur.no/02_steinskulptur_avdeling.png"
+    ],
     "tittel": "Steinskulptur.no",
     "kategori": "Nettside",
     "i samarbeid med": "-",
