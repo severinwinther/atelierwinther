@@ -39,7 +39,16 @@ def scan():
                 bilder.append(rel)
         if cover:
             bilder.insert(0, cover)
-        entry = {"id": folder, "cover": cover or (bilder[0] if bilder else None), "bilder": bilder, **info}
+        # Støtt "bilder_first": "filnavn.jpg" i info.json for å styre første bilde
+        bilder_first = info.get('bilder_first')
+        if bilder_first:
+            first_path = f"{PROSJEKTER_DIR}/{quote(folder)}/{quote(bilder_first)}"
+            if first_path in bilder:
+                bilder.remove(first_path)
+                bilder.insert(0, first_path)
+        # Fjern bilder_first fra info så det ikke havner i JSON-output
+        info_clean = {k: v for k, v in info.items() if k != 'bilder_first'}
+        entry = {"id": folder, "cover": bilder[0] if bilder else None, "bilder": bilder, **info_clean}
         result.append(entry)
     return result
 

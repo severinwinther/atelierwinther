@@ -176,6 +176,9 @@ nav { display: flex; gap: 3px; justify-content: flex-end; }
 }
 .is-value { font-size: 11px; }
 
+/* Mobile-info: skjult på desktop, synlig på mobil via media-query */
+.mobile-info { display: none; }
+
 /* ── Mobil-layout ── */
 @media (max-width: 680px) {
   :root { --img-w: calc(100vw - 40px); --img-h: calc((100vw - 40px) * 0.68); }
@@ -213,10 +216,15 @@ nav { display: flex; gap: 3px; justify-content: flex-end; }
   }
   .info-strip.open { max-height: 120px; border-top: 1px solid var(--line); }
   .info-strip-inner { padding: 12px 20px 8px; }
-}
 
-/* Mobile-info: skjult på desktop, synlig på mobil via media-query */
-.mobile-info { display: none; }
+  /* Fjern svart hover-boks på mobil */
+  .project-images.active:hover {
+    background: none;
+    padding: 0;
+    margin-left: 0;
+    width: 100%;
+  }
+}
 
 /* Images column (wrapper for area + info-strip) */
 .images-col { display: flex; flex-direction: column; }
@@ -709,7 +717,9 @@ function initStudioPage() {
     setPanel(PROJECTS[idx % N]);
 
     const viewMid = (window.innerHeight + HEADER_H) / 2;
-    smoothScrollTo(rowCenter(allRows[idx]) - viewMid, () => {
+    const target  = rowCenter(allRows[idx]) - viewMid;
+
+    function afterScroll() {
       const setH = oneSetHeight();
       if (activeIdx < N) {
         window.scrollTo({ top: window.scrollY + setH, behavior: 'instant' });
@@ -723,7 +733,15 @@ function initStudioPage() {
         activeIdx -= N;
       }
       animating = false;
-    });
+    }
+
+    if (isMobile()) {
+      /* På mobil: scroll instant for å unngå konflikt med iOS momentum-scroll */
+      window.scrollTo({ top: target, behavior: 'instant' });
+      afterScroll();
+    } else {
+      smoothScrollTo(target, afterScroll);
+    }
   }
 
   window.addEventListener('wheel', e => {
@@ -746,12 +764,13 @@ function initStudioPage() {
     if (currentPage !== 'studio' || animating) return;
     const dy = touchStartY - e.changedTouches[0].clientY;
     if (Math.abs(dy) < 30) return;
+    e.preventDefault(); /* stopp iOS momentum-scroll */
     const dir = dy > 0 ? 1 : -1;
     let next = activeIdx + dir;
     if (next < 0) next = allRows.length - 1;
     if (next >= allRows.length) next = 0;
     goTo(next);
-  }, { passive: true });
+  }, { passive: false });
 
   const mainEl = document.querySelector('#page-studio .site-main');
 
